@@ -12,6 +12,10 @@ require_once "config/database.php";
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Required JavaScript files -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
     <style>
         .navbar {
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -38,12 +42,13 @@ require_once "config/database.php";
             right: -8px;
             font-size: 0.7rem;
         }
-        .dropdown-menu {
-            border: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
         .nav-link {
             position: relative;
+            color: rgba(255, 255, 255, 0.85);
+            padding: 0.5rem 1rem;
+        }
+        .nav-link:hover {
+            color: #fff;
         }
         .nav-link::after {
             content: '';
@@ -52,7 +57,7 @@ require_once "config/database.php";
             left: 0;
             width: 0;
             height: 2px;
-            background-color: #0d6efd;
+            background-color: #fff;
             transition: width 0.3s;
         }
         .nav-link:hover::after {
@@ -71,10 +76,123 @@ require_once "config/database.php";
             width: 1.25rem;
             text-align: center;
         }
+        
+        /* Simple CSS Dropdown */
+        .products-dropdown {
+            position: relative;
+        }
+        .products-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            min-width: 200px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 1000;
+        }
+        .products-dropdown:hover .products-dropdown-menu {
+            display: block;
+        }
+        .products-dropdown-menu a {
+            display: block;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #333;
+        }
+        .products-dropdown-menu a:hover {
+            background: #f8f9fa;
+        }
+        
+        /* Stili per il menu a tendina */
+        .categories-menu {
+            position: relative;
+            display: inline-block;
+        }
+        .categories-button {
+            background-color: #0d6efd;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .categories-button:hover {
+            background-color: #0b5ed7;
+        }
+        .categories-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            border-radius: 5px;
+            padding: 5px 0;
+            display: none;
+            z-index: 1000;
+        }
+        .categories-menu:hover .categories-dropdown {
+            display: block;
+        }
+        .category-link {
+            padding: 10px 20px;
+            text-decoration: none;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .category-link:hover {
+            background-color: #f8f9fa;
+            color: #0d6efd;
+        }
+        .category-link i {
+            width: 20px;
+            text-align: center;
+        }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const productsDropdown = document.querySelector('.products-dropdown');
+            const dropdownMenu = document.querySelector('.products-dropdown-menu');
+            
+            if (productsDropdown && dropdownMenu) {
+                productsDropdown.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    dropdownMenu.classList.toggle('show');
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!productsDropdown.contains(e.target)) {
+                        dropdownMenu.classList.remove('show');
+                    }
+                });
+            }
+
+            const categoryButton = document.querySelector('.category-button');
+            const categoryMenu = document.querySelector('.category-menu');
+            
+            if (categoryButton && categoryMenu) {
+                categoryButton.addEventListener('click', function() {
+                    categoryMenu.classList.toggle('show');
+                });
+                
+                // Chiudi il menu quando si clicca fuori
+                document.addEventListener('click', function(e) {
+                    if (!categoryButton.contains(e.target) && !categoryMenu.contains(e.target)) {
+                        categoryMenu.classList.remove('show');
+                    }
+                });
+            }
+        });
+    </script>
 </head>
 <body>
-    <!-- Top Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
         <div class="container">
             <a class="navbar-brand" href="index.php">
@@ -90,27 +208,10 @@ require_once "config/database.php";
                             <i class="fas fa-home"></i> Home
                         </a>
                     </li>
-                    <li class="nav-item dropdown">
-                        <button class="nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <li class="nav-item">
+                        <a class="nav-link" href="products.php">
                             <i class="fas fa-th-large"></i> Products
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <a class="dropdown-item" href="products.php?category=pool_balls">
-                                    <i class="fas fa-basketball-ball"></i> Pool Balls
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="products.php?category=pool_tables">
-                                    <i class="fas fa-table"></i> Pool Tables
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="products.php?category=water_bottles">
-                                    <i class="fas fa-wine-bottle"></i> Water Bottles
-                                </a>
-                            </li>
-                        </ul>
+                        </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="about.php">
@@ -123,9 +224,9 @@ require_once "config/database.php";
                         </a>
                     </li>
                 </ul>
-                <form class="search-form me-3" action="products.php" method="GET">
-                    <input type="text" class="form-control" name="search" placeholder="Search products...">
-                    <button type="submit" class="text-muted">
+                <form class="d-flex me-3" action="products.php" method="GET">
+                    <input class="form-control me-2" type="search" name="search" placeholder="Search products...">
+                    <button class="btn btn-outline-light" type="submit">
                         <i class="fas fa-search"></i>
                     </button>
                 </form>
@@ -133,7 +234,7 @@ require_once "config/database.php";
                     <a href="cart.php" class="btn btn-outline-light me-2 position-relative">
                         <i class="fas fa-shopping-cart"></i>
                         <?php if(isset($_SESSION['cart']) && count($_SESSION['cart']) > 0): ?>
-                            <span class="badge bg-danger cart-badge"><?php echo count($_SESSION['cart']); ?></span>
+                            <span class="badge bg-danger position-absolute top-0 start-100 translate-middle"><?php echo count($_SESSION['cart']); ?></span>
                         <?php endif; ?>
                     </a>
                     <?php if(isset($_SESSION['user_id'])): ?>
