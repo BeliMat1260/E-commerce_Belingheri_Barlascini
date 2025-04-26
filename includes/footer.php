@@ -77,29 +77,8 @@
         </div>
     </footer>
 
-    <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+    <!-- Initialize Bootstrap components -->
     <script>
-        // Initialize Lightbox
-        lightbox.option({
-            'resizeDuration': 200,
-            'wrapAround': true,
-            'albumLabel': 'Image %1 of %2',
-            'fadeDuration': 300,
-            'imageFadeDuration': 300,
-            'showImageNumberLabel': true,
-            'alwaysShowNavOnTouchDevices': true,
-            'wrapAround': true,
-            'disableScrolling': true,
-            'fitImagesInViewport': true,
-            'maxWidth': 800,
-            'maxHeight': 600,
-            'positionFromTop': 50
-        });
-
-        // Initialize Bootstrap components
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize all tooltips
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));

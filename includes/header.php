@@ -1,6 +1,17 @@
 <?php
-session_start();
 require_once "config/database.php";
+require_once "config/session.php";
+
+// Check session timeout
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 3600)) {
+    // Last request was more than 1 hour ago
+    session_unset();
+    session_destroy();
+    setFlashMessage('warning', 'Your session has expired. Please log in again.');
+    header("Location: login.php");
+    exit();
+}
+$_SESSION['last_activity'] = time();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -8,11 +19,12 @@ require_once "config/database.php";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Premium Pool & Water Bottles Shop</title>
+    <!-- CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
-    <!-- Required JavaScript files -->
+    <!-- JavaScript -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
@@ -193,6 +205,17 @@ require_once "config/database.php";
     </script>
 </head>
 <body>
+    <!-- Flash Messages -->
+    <?php
+    $flash = getFlashMessage();
+    if ($flash): ?>
+        <div class="alert alert-<?php echo $flash['type']; ?> alert-dismissible fade show" role="alert">
+            <?php echo $flash['message']; ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+
+    <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
         <div class="container">
             <a class="navbar-brand" href="index.php">
@@ -233,16 +256,26 @@ require_once "config/database.php";
                 <div class="d-flex">
                     <a href="cart.php" class="btn btn-outline-light me-2 position-relative">
                         <i class="fas fa-shopping-cart"></i>
-                        <?php if(isset($_SESSION['cart']) && count($_SESSION['cart']) > 0): ?>
-                            <span class="badge bg-danger position-absolute top-0 start-100 translate-middle"><?php echo count($_SESSION['cart']); ?></span>
+                        <?php 
+                        // Get cart count from database
+                        $cart_count_sql = "SELECT COUNT(*) as count FROM cart WHERE user_id = ?";
+                        $cart_count_stmt = mysqli_prepare($conn, $cart_count_sql);
+                        mysqli_stmt_bind_param($cart_count_stmt, "i", $_SESSION['user_id']);
+                        mysqli_stmt_execute($cart_count_stmt);
+                        $cart_count_result = mysqli_stmt_get_result($cart_count_stmt);
+                        $cart_count = mysqli_fetch_assoc($cart_count_result)['count'];
+                        
+                        if($cart_count > 0): 
+                        ?>
+                            <span class="badge bg-danger position-absolute top-0 start-100 translate-middle"><?php echo $cart_count; ?></span>
                         <?php endif; ?>
                     </a>
-                    <?php if(isset($_SESSION['user_id'])): ?>
+                    <?php if(isLoggedIn()): ?>
                         <div class="dropdown">
-                            <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-user"></i> My Account
+                            <button class="btn btn-outline-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user"></i> <?php echo htmlspecialchars(getCurrentUsername()); ?>
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                 <li>
                                     <a class="dropdown-item" href="account.php">
                                         <i class="fas fa-user-circle"></i> Profile
@@ -251,6 +284,21 @@ require_once "config/database.php";
                                 <li>
                                     <a class="dropdown-item" href="orders.php">
                                         <i class="fas fa-shopping-bag"></i> Orders
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="wishlist.php">
+                                        <i class="fas fa-heart"></i> Wishlist
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="addresses.php">
+                                        <i class="fas fa-map-marker-alt"></i> Addresses
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="cart.php">
+                                        <i class="fas fa-shopping-cart"></i> Cart
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>

@@ -1,5 +1,4 @@
 <?php
-session_start();
 require_once "config/database.php";
 ?>
 <!DOCTYPE html>
@@ -8,7 +7,7 @@ require_once "config/database.php";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Premium Pool & Water Bottles Shop</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -76,16 +75,30 @@ require_once "config/database.php";
             <h2 class="text-center mb-5">Featured Products</h2>
             <div class="row">
                 <?php
-                $sql = "SELECT * FROM products WHERE featured = 1 LIMIT 4";
-                $result = mysqli_query($conn, $sql);
+                $featured_sql = "SELECT p.*, 
+                                (SELECT COUNT(*) FROM product_reviews WHERE product_id = p.id) as review_count,
+                                (SELECT AVG(rating) FROM product_reviews WHERE product_id = p.id) as avg_rating,
+                                (SELECT image_url FROM product_images WHERE product_id = p.id AND image_order = 1 LIMIT 1) as primary_image
+                                FROM products p 
+                                WHERE p.is_active = 1 
+                                ORDER BY p.created_at DESC 
+                                LIMIT 4";
+                $result = mysqli_query($conn, $featured_sql);
                 if(mysqli_num_rows($result) > 0):
                     while($row = mysqli_fetch_assoc($result)):
                 ?>
                 <div class="col-md-3 mb-4">
                     <div class="card h-100 border-0 shadow">
-                        <img src="<?php echo $row['image_url'] ?: 'images/placeholder.jpg'; ?>" 
-                             class="card-img-top" 
-                             alt="<?php echo htmlspecialchars($row['name']); ?>">
+                        <?php if ($row['primary_image']): ?>
+                            <img src="<?php echo htmlspecialchars($row['primary_image']); ?>" 
+                                 class="card-img-top" 
+                                 alt="<?php echo htmlspecialchars($row['name']); ?>"
+                                 style="height: 200px; object-fit: cover;">
+                        <?php else: ?>
+                            <div class="d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+                                <span class="text-muted">No image available</span>
+                            </div>
+                        <?php endif; ?>
                         <div class="card-body">
                             <h5 class="card-title"><?php echo htmlspecialchars($row['name']); ?></h5>
                             <p class="card-text text-primary fw-bold">$<?php echo number_format($row['price'], 2); ?></p>
@@ -132,6 +145,5 @@ require_once "config/database.php";
     </section>
 
     <?php include 'includes/footer.php'; ?>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,88 +1,30 @@
 <?php
-session_start();
 require_once "config/database.php";
+require_once "config/session.php";
 
 // Redirect if not logged in
-if (!isset($_SESSION['user_id'])) {
+if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = 'checkout.php';
     header("Location: login.php");
     exit();
 }
 
 // Redirect if cart is empty
-if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
+$check_cart_sql = "SELECT COUNT(*) as count FROM cart WHERE user_id = ?";
+$check_cart_stmt = mysqli_prepare($conn, $check_cart_sql);
+mysqli_stmt_bind_param($check_cart_stmt, "i", $_SESSION['user_id']);
+mysqli_stmt_execute($check_cart_stmt);
+$cart_result = mysqli_stmt_get_result($check_cart_stmt);
+$cart_count = mysqli_fetch_assoc($cart_result)['count'];
+
+if ($cart_count == 0) {
+    setFlashMessage('warning', 'Your cart is empty. Please add some products before checkout.');
     header("Location: cart.php");
     exit();
 }
 
 $error = '';
 $success = '';
-
-// Process order if form is submitted
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $shipping_address = trim($_POST['shipping_address']);
-    $billing_address = trim($_POST['billing_address']);
-    $payment_method = $_POST['payment_method'];
-    
-    if (empty($shipping_address) || empty($billing_address) || empty($payment_method)) {
-        $error = 'All fields are required.';
-    } else {
-        // Calculate total
-        $total = 0;
-        $product_ids = array_keys($_SESSION['cart']);
-        $placeholders = str_repeat('?,', count($product_ids) - 1) . '?';
-        $sql = "SELECT * FROM products WHERE id IN ($placeholders)";
-        $stmt = mysqli_prepare($conn, $sql);
-        mysqli_stmt_bind_param($stmt, str_repeat('i', count($product_ids)), ...$product_ids);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-        
-        while ($row = mysqli_fetch_assoc($result)) {
-            $quantity = $_SESSION['cart'][$row['id']];
-            $total += $row['price'] * $quantity;
-        }
-        
-        // Start transaction
-        mysqli_begin_transaction($conn);
-        
-        try {
-            // Insert order
-            $sql = "INSERT INTO orders (user_id, total_amount, shipping_address, billing_address, payment_method) VALUES (?, ?, ?, ?, ?)";
-            $stmt = mysqli_prepare($conn, $sql);
-            mysqli_stmt_bind_param($stmt, "idsss", $_SESSION['user_id'], $total, $shipping_address, $billing_address, $payment_method);
-            mysqli_stmt_execute($stmt);
-            $order_id = mysqli_insert_id($conn);
-            
-            // Insert order items
-            $sql = "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)";
-            $stmt = mysqli_prepare($conn, $sql);
-            
-            foreach ($_SESSION['cart'] as $product_id => $quantity) {
-                $product_sql = "SELECT price FROM products WHERE id = ?";
-                $product_stmt = mysqli_prepare($conn, $product_sql);
-                mysqli_stmt_bind_param($product_stmt, "i", $product_id);
-                mysqli_stmt_execute($product_stmt);
-                $product_result = mysqli_stmt_get_result($product_stmt);
-                $product = mysqli_fetch_assoc($product_result);
-                
-                mysqli_stmt_bind_param($stmt, "iiid", $order_id, $product_id, $quantity, $product['price']);
-                mysqli_stmt_execute($stmt);
-            }
-            
-            // Commit transaction
-            mysqli_commit($conn);
-            
-            // Clear cart
-            unset($_SESSION['cart']);
-            
-            $success = 'Order placed successfully! Thank you for your purchase.';
-        } catch (Exception $e) {
-            // Rollback transaction
-            mysqli_rollback($conn);
-            $error = 'Order processing failed. Please try again.';
-        }
-    }
-}
 
 // Get user information
 $sql = "SELECT * FROM users WHERE id = ?";
@@ -91,177 +33,318 @@ mysqli_stmt_bind_param($stmt, "i", $_SESSION['user_id']);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 $user = mysqli_fetch_assoc($result);
+
+// Process order if form is submitted
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $shipping_address = trim($_POST['shipping_address']);
+    $billing_address = trim($_POST['billing_address']);
+    $payment_method = $_POST['payment_method'];
+    $notes = trim($_POST['notes'] ?? '');
+    
+    if (empty($shipping_address) || empty($billing_address) || empty($payment_method)) {
+        $error = 'All required fields must be filled out.';
+    } else {
+        // Calculate total and get cart items
+        $total = 0;
+        $cart_sql = "SELECT c.*, p.price, p.discount_price, p.stock_quantity 
+                     FROM cart c 
+                     JOIN products p ON c.product_id = p.id 
+                     WHERE c.user_id = ?";
+        $cart_stmt = mysqli_prepare($conn, $cart_sql);
+        mysqli_stmt_bind_param($cart_stmt, "i", $_SESSION['user_id']);
+        mysqli_stmt_execute($cart_stmt);
+        $cart_result = mysqli_stmt_get_result($cart_stmt);
+        
+        $cart_items = [];
+        while ($row = mysqli_fetch_assoc($cart_result)) {
+            $price = $row['discount_price'] ?? $row['price'];
+            $total += $price * $row['quantity'];
+            $cart_items[] = $row;
+        }
+        
+        // Start transaction
+        mysqli_begin_transaction($conn);
+        
+        try {
+            // Insert order
+            $sql = "INSERT INTO orders (user_id, total_amount, shipping_address, billing_address, payment_method, notes) 
+                    VALUES (?, ?, ?, ?, ?, ?)";
+            $stmt = mysqli_prepare($conn, $sql);
+            mysqli_stmt_bind_param($stmt, "idssss", $_SESSION['user_id'], $total, $shipping_address, $billing_address, $payment_method, $notes);
+            mysqli_stmt_execute($stmt);
+            $order_id = mysqli_insert_id($conn);
+            
+            // Insert order items and update stock
+            $sql = "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)";
+            $stmt = mysqli_prepare($conn, $sql);
+            
+            foreach ($cart_items as $item) {
+                $price = $item['discount_price'] ?? $item['price'];
+                mysqli_stmt_bind_param($stmt, "iiid", $order_id, $item['product_id'], $item['quantity'], $price);
+                mysqli_stmt_execute($stmt);
+                
+                // Update stock
+                $new_stock = $item['stock_quantity'] - $item['quantity'];
+                $update_stock_sql = "UPDATE products SET stock_quantity = ? WHERE id = ?";
+                $update_stock_stmt = mysqli_prepare($conn, $update_stock_sql);
+                mysqli_stmt_bind_param($update_stock_stmt, "ii", $new_stock, $item['product_id']);
+                mysqli_stmt_execute($update_stock_stmt);
+            }
+            
+            // Clear cart
+            $clear_cart_sql = "DELETE FROM cart WHERE user_id = ?";
+            $clear_cart_stmt = mysqli_prepare($conn, $clear_cart_sql);
+            mysqli_stmt_bind_param($clear_cart_stmt, "i", $_SESSION['user_id']);
+            mysqli_stmt_execute($clear_cart_stmt);
+            
+            // Commit transaction
+            mysqli_commit($conn);
+            
+            // Set success message
+            setFlashMessage('success', 'Order placed successfully! Thank you for your purchase.');
+            
+            // Redirect to order confirmation
+            header("Location: order_confirmation.php?id=" . $order_id);
+            exit();
+        } catch (Exception $e) {
+            // Rollback transaction
+            mysqli_rollback($conn);
+            $error = 'Order processing failed. Please try again.';
+        }
+    }
+}
+
+// Include header
+include 'includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout - Pool & Water Balls Shop</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/style.css">
-</head>
-<body>
-    <!-- Navigation (same as index.php) -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="index.php">Pool & Water Balls Shop</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="products.php">Products</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="about.php">About</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="contact.php">Contact</a>
-                    </li>
-                </ul>
-                <div class="d-flex">
-                    <a href="cart.php" class="btn btn-outline-light me-2">
-                        <i class="fas fa-shopping-cart"></i> Cart
-                        <?php if(isset($_SESSION['cart']) && count($_SESSION['cart']) > 0): ?>
-                            <span class="badge bg-danger"><?php echo count($_SESSION['cart']); ?></span>
-                        <?php endif; ?>
-                    </a>
-                    <?php if(isset($_SESSION['user_id'])): ?>
-                        <a href="account.php" class="btn btn-outline-light me-2">My Account</a>
-                        <a href="logout.php" class="btn btn-outline-light">Logout</a>
-                    <?php else: ?>
-                        <a href="login.php" class="btn btn-outline-light">Login</a>
-                    <?php endif; ?>
+
+<!-- Checkout Section -->
+<div class="container py-5">
+    <h1 class="mb-4">Checkout</h1>
+    
+    <?php if ($error): ?>
+        <div class="alert alert-danger"><?php echo $error; ?></div>
+    <?php endif; ?>
+    
+    <div class="row">
+        <!-- Order Summary -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Order Summary</h5>
+                    <?php
+                    $total = 0;
+                    $cart_sql = "SELECT c.*, p.name, p.price, p.discount_price 
+                                FROM cart c 
+                                JOIN products p ON c.product_id = p.id 
+                                WHERE c.user_id = ?";
+                    $cart_stmt = mysqli_prepare($conn, $cart_sql);
+                    mysqli_stmt_bind_param($cart_stmt, "i", $_SESSION['user_id']);
+                    mysqli_stmt_execute($cart_stmt);
+                    $cart_result = mysqli_stmt_get_result($cart_stmt);
+                    
+                    while ($item = mysqli_fetch_assoc($cart_result)):
+                        $price = $item['discount_price'] ?? $item['price'];
+                        $subtotal = $price * $item['quantity'];
+                        $total += $subtotal;
+                    ?>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><?php echo htmlspecialchars($item['name']); ?> x <?php echo $item['quantity']; ?></span>
+                            <span>$<?php echo number_format($subtotal, 2); ?></span>
+                        </div>
+                    <?php endwhile; ?>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <strong>Total:</strong>
+                        <strong>$<?php echo number_format($total, 2); ?></strong>
+                    </div>
                 </div>
             </div>
         </div>
-    </nav>
-
-    <!-- Checkout Section -->
-    <div class="container py-5">
-        <div class="row">
-            <div class="col-md-8">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h2 class="card-title mb-4">Checkout</h2>
-                        
-                        <?php if ($error): ?>
-                            <div class="alert alert-danger"><?php echo $error; ?></div>
-                        <?php endif; ?>
-                        
-                        <?php if ($success): ?>
-                            <div class="alert alert-success"><?php echo $success; ?></div>
-                        <?php endif; ?>
-                        
-                        <form method="POST" action="checkout.php">
-                            <div class="mb-3">
-                                <label for="shipping_address" class="form-label">Shipping Address</label>
-                                <textarea class="form-control" id="shipping_address" name="shipping_address" rows="3" required><?php echo htmlspecialchars($user['address'] ?? ''); ?></textarea>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="billing_address" class="form-label">Billing Address</label>
-                                <textarea class="form-control" id="billing_address" name="billing_address" rows="3" required><?php echo htmlspecialchars($user['address'] ?? ''); ?></textarea>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Payment Method</label>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="payment_method" id="credit_card" value="credit_card" required>
-                                    <label class="form-check-label" for="credit_card">
-                                        Credit Card
-                                    </label>
+        
+        <!-- Checkout Form -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Shipping & Payment Information</h5>
+                    
+                    <?php
+                    // Get user's saved addresses
+                    $addresses_sql = "SELECT * FROM addresses WHERE user_id = ? ORDER BY is_default DESC, created_at DESC";
+                    $addresses_stmt = mysqli_prepare($conn, $addresses_sql);
+                    mysqli_stmt_bind_param($addresses_stmt, "i", $_SESSION['user_id']);
+                    mysqli_stmt_execute($addresses_stmt);
+                    $addresses_result = mysqli_stmt_get_result($addresses_stmt);
+                    $addresses = mysqli_fetch_all($addresses_result, MYSQLI_ASSOC);
+                    ?>
+                    
+                    <form method="POST" action="checkout.php">
+                        <!-- Shipping Address -->
+                        <div class="mb-3">
+                            <label class="form-label">Shipping Address</label>
+                            <?php if (!empty($addresses)): ?>
+                                <div class="mb-3">
+                                    <select class="form-select" id="shipping_address_select" onchange="updateShippingAddress(this.value)">
+                                        <option value="">Select a saved address...</option>
+                                        <?php foreach ($addresses as $address): ?>
+                                            <option value="<?php echo htmlspecialchars(json_encode([
+                                                'address_line1' => $address['address_line1'],
+                                                'address_line2' => $address['address_line2'],
+                                                'city' => $address['city'],
+                                                'state' => $address['state'],
+                                                'postal_code' => $address['postal_code'],
+                                                'country' => $address['country']
+                                            ])); ?>">
+                                                <?php echo htmlspecialchars($address['address_name']); ?>
+                                                <?php echo $address['is_default'] ? ' (Default)' : ''; ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                        <option value="new">+ Use a different address</option>
+                                    </select>
                                 </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="payment_method" id="paypal" value="paypal">
-                                    <label class="form-check-label" for="paypal">
-                                        PayPal
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary">Place Order</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h3 class="card-title mb-4">Order Summary</h3>
-                        
-                        <?php
-                        $total = 0;
-                        if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
-                            $product_ids = array_keys($_SESSION['cart']);
-                            $placeholders = str_repeat('?,', count($product_ids) - 1) . '?';
-                            $sql = "SELECT * FROM products WHERE id IN ($placeholders)";
-                            $stmt = mysqli_prepare($conn, $sql);
-                            mysqli_stmt_bind_param($stmt, str_repeat('i', count($product_ids)), ...$product_ids);
-                            mysqli_stmt_execute($stmt);
-                            $result = mysqli_stmt_get_result($stmt);
-                            
-                            while ($row = mysqli_fetch_assoc($result)) {
-                                $quantity = $_SESSION['cart'][$row['id']];
-                                $subtotal = $row['price'] * $quantity;
-                                $total += $subtotal;
-                        ?>
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span><?php echo $row['name']; ?> x <?php echo $quantity; ?></span>
-                                    <span>$<?php echo number_format($subtotal, 2); ?></span>
-                                </div>
-                        <?php
-                            }
-                        }
-                        ?>
-                        
-                        <hr>
-                        <div class="d-flex justify-content-between">
-                            <strong>Total</strong>
-                            <strong>$<?php echo number_format($total, 2); ?></strong>
+                            <?php endif; ?>
+                            <textarea class="form-control" id="shipping_address" name="shipping_address" rows="3" required><?php echo htmlspecialchars($user['address'] ?? ''); ?></textarea>
                         </div>
-                    </div>
+                        
+                        <!-- Billing Address -->
+                        <div class="mb-3">
+                            <label class="form-label">Billing Address</label>
+                            <?php if (!empty($addresses)): ?>
+                                <div class="mb-3">
+                                    <select class="form-select" id="billing_address_select" onchange="updateBillingAddress(this.value)">
+                                        <option value="">Select a saved address...</option>
+                                        <?php foreach ($addresses as $address): ?>
+                                            <option value="<?php echo htmlspecialchars(json_encode([
+                                                'address_line1' => $address['address_line1'],
+                                                'address_line2' => $address['address_line2'],
+                                                'city' => $address['city'],
+                                                'state' => $address['state'],
+                                                'postal_code' => $address['postal_code'],
+                                                'country' => $address['country']
+                                            ])); ?>">
+                                                <?php echo htmlspecialchars($address['address_name']); ?>
+                                                <?php echo $address['is_default'] ? ' (Default)' : ''; ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                        <option value="new">+ Use a different address</option>
+                                    </select>
+                                    <div class="form-check mt-2">
+                                        <input class="form-check-input" type="checkbox" id="same_as_shipping" onchange="copyShippingAddress()">
+                                        <label class="form-check-label" for="same_as_shipping">
+                                            Same as shipping address
+                                        </label>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                            <textarea class="form-control" id="billing_address" name="billing_address" rows="3" required><?php echo htmlspecialchars($user['address'] ?? ''); ?></textarea>
+                        </div>
+                        
+                        <!-- Payment Method -->
+                        <div class="mb-3">
+                            <label class="form-label">Payment Method</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="payment_method" id="credit_card" value="credit_card" required>
+                                <label class="form-check-label" for="credit_card">
+                                    Credit Card
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="payment_method" id="paypal" value="paypal">
+                                <label class="form-check-label" for="paypal">
+                                    PayPal
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Order Notes -->
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Order Notes (Optional)</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Place Order</button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Footer (same as index.php) -->
-    <footer class="bg-dark text-light py-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4">
-                    <h5>About Us</h5>
-                    <p>Your trusted source for high-quality pool and water balls since 2024.</p>
-                </div>
-                <div class="col-md-4">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="products.php" class="text-light">Products</a></li>
-                        <li><a href="about.php" class="text-light">About Us</a></li>
-                        <li><a href="contact.php" class="text-light">Contact</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h5>Contact Us</h5>
-                    <address>
-                        <p>Email: info@poolshop.com</p>
-                        <p>Phone: (123) 456-7890</p>
-                    </address>
-                </div>
-            </div>
-        </div>
-    </footer>
+<?php include 'includes/footer.php'; ?>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html> 
+<script>
+function updateShippingAddress(value) {
+    const textarea = document.getElementById('shipping_address');
+    if (value === 'new') {
+        textarea.value = '';
+        textarea.removeAttribute('readonly');
+    } else if (value) {
+        const address = JSON.parse(value);
+        let formattedAddress = address.address_line1;
+        if (address.address_line2) {
+            formattedAddress += '\n' + address.address_line2;
+        }
+        formattedAddress += '\n' + address.city + ', ' + address.state + ' ' + address.postal_code;
+        formattedAddress += '\n' + address.country;
+        textarea.value = formattedAddress;
+        textarea.setAttribute('readonly', 'readonly');
+    }
+}
+
+function updateBillingAddress(value) {
+    const textarea = document.getElementById('billing_address');
+    if (value === 'new') {
+        textarea.value = '';
+        textarea.removeAttribute('readonly');
+        document.getElementById('same_as_shipping').checked = false;
+    } else if (value) {
+        const address = JSON.parse(value);
+        let formattedAddress = address.address_line1;
+        if (address.address_line2) {
+            formattedAddress += '\n' + address.address_line2;
+        }
+        formattedAddress += '\n' + address.city + ', ' + address.state + ' ' + address.postal_code;
+        formattedAddress += '\n' + address.country;
+        textarea.value = formattedAddress;
+        textarea.setAttribute('readonly', 'readonly');
+        document.getElementById('same_as_shipping').checked = false;
+    }
+}
+
+function copyShippingAddress() {
+    const sameAsShipping = document.getElementById('same_as_shipping');
+    const billingSelect = document.getElementById('billing_address_select');
+    const billingTextarea = document.getElementById('billing_address');
+    const shippingTextarea = document.getElementById('shipping_address');
+    
+    if (sameAsShipping.checked) {
+        billingTextarea.value = shippingTextarea.value;
+        billingTextarea.setAttribute('readonly', 'readonly');
+        if (billingSelect) {
+            billingSelect.value = '';
+            billingSelect.setAttribute('disabled', 'disabled');
+        }
+    } else {
+        if (billingSelect) {
+            billingSelect.removeAttribute('disabled');
+        }
+        billingTextarea.removeAttribute('readonly');
+    }
+}
+
+// Set default address if available
+window.addEventListener('DOMContentLoaded', function() {
+    const shippingSelect = document.getElementById('shipping_address_select');
+    const billingSelect = document.getElementById('billing_address_select');
+    
+    if (shippingSelect && shippingSelect.options.length > 1) {
+        shippingSelect.selectedIndex = 1; // Select first address (default)
+        updateShippingAddress(shippingSelect.value);
+    }
+    
+    if (billingSelect && billingSelect.options.length > 1) {
+        billingSelect.selectedIndex = 1; // Select first address (default)
+        updateBillingAddress(billingSelect.value);
+    }
+});
+</script> 
