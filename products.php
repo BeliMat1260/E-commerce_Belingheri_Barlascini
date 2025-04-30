@@ -1,20 +1,39 @@
 <?php
+// Enable error reporting
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Check if database connection file exists
+if (!file_exists("config/database.php")) {
+    die("Error: database.php configuration file not found");
+}
+
+// Check if session file exists
+if (!file_exists("config/session.php")) {
+    die("Error: session.php configuration file not found");
+}
+
 require_once "config/database.php";
 require_once "config/session.php";
 
-// Get filters
-$category_id = isset($_GET['category_id']) ? (int)$_GET['category_id'] : null;
+// Verify database connection
+if (!isset($conn) || !$conn) {
+    die("Error: Database connection failed");
+}
+
+// Get filters with proper validation
+$category_id = isset($_GET['category_id']) && !empty($_GET['category_id']) ? (int)$_GET['category_id'] : null;
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $sort = isset($_GET['sort']) ? $_GET['sort'] : 'name_asc';
-$min_price = isset($_GET['min_price']) ? (float)$_GET['min_price'] : null;
-$max_price = isset($_GET['max_price']) ? (float)$_GET['max_price'] : null;
-$min_rating = isset($_GET['min_rating']) ? (int)$_GET['min_rating'] : null;
+$min_price = isset($_GET['min_price']) && is_numeric($_GET['min_price']) ? (float)$_GET['min_price'] : null;
+$max_price = isset($_GET['max_price']) && is_numeric($_GET['max_price']) ? (float)$_GET['max_price'] : null;
+$min_rating = isset($_GET['min_rating']) && is_numeric($_GET['min_rating']) ? (int)$_GET['min_rating'] : null;
 $in_stock = isset($_GET['in_stock']) ? true : false;
 
-// Build SQL query
+// Build SQL query with proper joins and conditions
 $sql = "SELECT p.*, c.name as category_name,
         (SELECT COUNT(*) FROM product_reviews WHERE product_id = p.id) as review_count,
-        (SELECT AVG(rating) FROM product_reviews WHERE product_id = p.id) as avg_rating,
+        COALESCE((SELECT AVG(rating) FROM product_reviews WHERE product_id = p.id), 0) as avg_rating,
         (SELECT image_url FROM product_images WHERE product_id = p.id AND image_order = 1 LIMIT 1) as primary_image
         FROM products p 
         LEFT JOIN categories c ON p.category_id = c.id 
@@ -60,7 +79,7 @@ if ($in_stock) {
     $sql .= " AND p.stock_quantity > 0";
 }
 
-// Add sorting
+// Add sorting with proper column references
 switch ($sort) {
     case 'price_asc':
         $sql .= " ORDER BY p.price ASC";
@@ -69,7 +88,7 @@ switch ($sort) {
         $sql .= " ORDER BY p.price DESC";
         break;
     case 'rating_desc':
-        $sql .= " ORDER BY (SELECT AVG(rating) FROM product_reviews WHERE product_id = p.id) DESC";
+        $sql .= " ORDER BY avg_rating DESC, review_count DESC";
         break;
     case 'name_desc':
         $sql .= " ORDER BY p.name DESC";
@@ -81,16 +100,41 @@ switch ($sort) {
         $sql .= " ORDER BY p.name ASC";
 }
 
-$stmt = mysqli_prepare($conn, $sql);
-if (!empty($params)) {
-    mysqli_stmt_bind_param($stmt, $types, ...$params);
+try {
+    $stmt = mysqli_prepare($conn, $sql);
+    if (!$stmt) {
+        throw new Exception("Error preparing statement: " . mysqli_error($conn));
+    }
+
+    if (!empty($params)) {
+        mysqli_stmt_bind_param($stmt, $types, ...$params);
+    }
+    
+    if (!mysqli_stmt_execute($stmt)) {
+        throw new Exception("Error executing statement: " . mysqli_stmt_error($stmt));
+    }
+    
+    $result = mysqli_stmt_get_result($stmt);
+    if (!$result) {
+        throw new Exception("Error getting result: " . mysqli_stmt_error($stmt));
+    }
+} catch (Exception $e) {
+    // Log the error and show a user-friendly message
+    error_log("Database error: " . $e->getMessage());
+    $error_message = "An error occurred while loading products. Please try again later.";
 }
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
 
 // Get categories for filter
 $categories_sql = "SELECT * FROM categories ORDER BY name";
 $categories_result = mysqli_query($conn, $categories_sql);
+if (!$categories_result) {
+    error_log("Error fetching categories: " . mysqli_error($conn));
+}
+
+// Check if header file exists
+if (!file_exists('includes/header.php')) {
+    die("Error: header.php file not found");
+}
 
 // Include header
 include 'includes/header.php';
@@ -98,61 +142,101 @@ include 'includes/header.php';
 
 <!-- Products Section -->
 <div class="container py-5">
+    <?php if (isset($error_message)): ?>
+        <div class="alert alert-danger fade-in">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <?php echo $error_message; ?>
+        </div>
+    <?php endif; ?>
+
     <div class="row">
         <!-- Filters Sidebar -->
         <div class="col-md-3">
             <div class="card mb-4">
                 <div class="card-body">
-                    <h5 class="card-title">Filters</h5>
+                    <h5 class="card-title mb-4">Filters</h5>
                     <form action="products.php" method="GET" id="filterForm">
                         <!-- Search -->
-                        <div class="mb-3">
-                            <label for="search" class="form-label">Search</label>
-                            <input type="text" class="form-control" id="search" name="search" value="<?php echo htmlspecialchars($search); ?>">
+                        <div class="mb-4">
+                            <label for="search" class="form-label fw-medium">Search</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-search text-secondary"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0" id="search" name="search" 
+                                       value="<?php echo htmlspecialchars($search); ?>"
+                                       placeholder="Search products...">
+                            </div>
                         </div>
 
                         <!-- Categories -->
-                        <div class="mb-3">
-                            <label for="category_id" class="form-label">Category</label>
+                        <div class="mb-4">
+                            <label for="category_id" class="form-label fw-medium">Category</label>
                             <select class="form-select" id="category_id" name="category_id">
                                 <option value="">All Categories</option>
-                                <?php while ($category = mysqli_fetch_assoc($categories_result)): ?>
-                                    <option value="<?php echo $category['id']; ?>" <?php echo $category_id == $category['id'] ? 'selected' : ''; ?>>
+                                <?php 
+                                if ($categories_result) {
+                                    while ($category = mysqli_fetch_assoc($categories_result)): 
+                                ?>
+                                    <option value="<?php echo $category['id']; ?>" 
+                                            <?php echo $category_id == $category['id'] ? 'selected' : ''; ?>>
                                         <?php echo htmlspecialchars($category['name']); ?>
                                     </option>
-                                <?php endwhile; ?>
+                                <?php 
+                                    endwhile;
+                                }
+                                ?>
                             </select>
                         </div>
 
                         <!-- Price Range -->
-                        <div class="mb-3">
-                            <label class="form-label">Price Range</label>
-                            <div class="row">
+                        <div class="mb-4">
+                            <label class="form-label fw-medium">Price Range</label>
+                            <div class="row g-2">
                                 <div class="col-6">
-                                    <input type="number" class="form-control" name="min_price" placeholder="Min" value="<?php echo $min_price; ?>">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0">$</span>
+                                        <input type="number" class="form-control border-start-0" name="min_price" 
+                                               placeholder="Min" value="<?php echo $min_price; ?>"
+                                               min="0" step="0.01">
+                                    </div>
                                 </div>
                                 <div class="col-6">
-                                    <input type="number" class="form-control" name="max_price" placeholder="Max" value="<?php echo $max_price; ?>">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0">$</span>
+                                        <input type="number" class="form-control border-start-0" name="max_price" 
+                                               placeholder="Max" value="<?php echo $max_price; ?>"
+                                               min="0" step="0.01">
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Rating Filter -->
-                        <div class="mb-3">
-                            <label for="min_rating" class="form-label">Minimum Rating</label>
+                        <div class="mb-4">
+                            <label for="min_rating" class="form-label fw-medium">Minimum Rating</label>
                             <select class="form-select" id="min_rating" name="min_rating">
                                 <option value="">Any Rating</option>
-                                <option value="4" <?php echo $min_rating == 4 ? 'selected' : ''; ?>>4+ Stars</option>
-                                <option value="3" <?php echo $min_rating == 3 ? 'selected' : ''; ?>>3+ Stars</option>
-                                <option value="2" <?php echo $min_rating == 2 ? 'selected' : ''; ?>>2+ Stars</option>
-                                <option value="1" <?php echo $min_rating == 1 ? 'selected' : ''; ?>>1+ Stars</option>
+                                <option value="4" <?php echo $min_rating == 4 ? 'selected' : ''; ?>>
+                                    <i class="fas fa-star"></i> 4+ Stars
+                                </option>
+                                <option value="3" <?php echo $min_rating == 3 ? 'selected' : ''; ?>>
+                                    <i class="fas fa-star"></i> 3+ Stars
+                                </option>
+                                <option value="2" <?php echo $min_rating == 2 ? 'selected' : ''; ?>>
+                                    <i class="fas fa-star"></i> 2+ Stars
+                                </option>
+                                <option value="1" <?php echo $min_rating == 1 ? 'selected' : ''; ?>>
+                                    <i class="fas fa-star"></i> 1+ Stars
+                                </option>
                             </select>
                         </div>
 
                         <!-- Stock Filter -->
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="in_stock" name="in_stock" <?php echo $in_stock ? 'checked' : ''; ?>>
+                                <input class="form-check-input" type="checkbox" id="in_stock" name="in_stock" 
+                                       <?php echo $in_stock ? 'checked' : ''; ?>>
                                 <label class="form-check-label" for="in_stock">
                                     In Stock Only
                                 </label>
@@ -160,8 +244,8 @@ include 'includes/header.php';
                         </div>
 
                         <!-- Sort -->
-                        <div class="mb-3">
-                            <label for="sort" class="form-label">Sort By</label>
+                        <div class="mb-4">
+                            <label for="sort" class="form-label fw-medium">Sort By</label>
                             <select class="form-select" id="sort" name="sort">
                                 <option value="name_asc" <?php echo $sort == 'name_asc' ? 'selected' : ''; ?>>Name (A-Z)</option>
                                 <option value="name_desc" <?php echo $sort == 'name_desc' ? 'selected' : ''; ?>>Name (Z-A)</option>
@@ -172,7 +256,14 @@ include 'includes/header.php';
                             </select>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-filter me-2"></i>Apply Filters
+                            </button>
+                            <a href="products.php" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Clear Filters
+                            </a>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -180,14 +271,14 @@ include 'includes/header.php';
 
         <!-- Products Grid -->
         <div class="col-md-9">
-            <div class="row" id="productsGrid">
-                <?php if (mysqli_num_rows($result) > 0): ?>
+            <?php if (isset($result) && mysqli_num_rows($result) > 0): ?>
+                <div class="row" id="productsGrid">
                     <?php while ($product = mysqli_fetch_assoc($result)): ?>
                         <div class="col-md-4 mb-4 product-item" 
                              data-price="<?php echo $product['price']; ?>"
                              data-rating="<?php echo $product['avg_rating']; ?>"
                              data-date="<?php echo strtotime($product['created_at']); ?>">
-                            <div class="card h-100">
+                            <div class="card h-100 fade-in">
                                 <div class="position-relative">
                                     <?php if ($product['primary_image']): ?>
                                         <img src="<?php echo htmlspecialchars($product['primary_image']); ?>" 
@@ -259,14 +350,13 @@ include 'includes/header.php';
                             </div>
                         </div>
                     <?php endwhile; ?>
-                <?php else: ?>
-                    <div class="col-12">
-                        <div class="alert alert-info">
-                            No products found matching your criteria.
-                        </div>
-                    </div>
-                <?php endif; ?>
-            </div>
+                </div>
+            <?php else: ?>
+                <div class="alert alert-info fade-in">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No products found matching your criteria.
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>
@@ -298,16 +388,40 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Real-time filter updates
+    // Price range validation
+    const minPriceInput = document.querySelector('input[name="min_price"]');
+    const maxPriceInput = document.querySelector('input[name="max_price"]');
+
+    function validatePriceRange() {
+        const minPrice = parseFloat(minPriceInput.value);
+        const maxPrice = parseFloat(maxPriceInput.value);
+
+        if (minPrice && maxPrice && minPrice > maxPrice) {
+            maxPriceInput.setCustomValidity('Maximum price must be greater than minimum price');
+        } else {
+            maxPriceInput.setCustomValidity('');
+        }
+    }
+
+    minPriceInput.addEventListener('input', validatePriceRange);
+    maxPriceInput.addEventListener('input', validatePriceRange);
+
+    // Form submission with loading state
     const filterForm = document.getElementById('filterForm');
-    const filterInputs = filterForm.querySelectorAll('input, select');
-    
-    filterInputs.forEach(input => {
-        input.addEventListener('change', () => {
-            filterForm.submit();
-        });
+    const submitButton = filterForm.querySelector('button[type="submit"]');
+
+    filterForm.addEventListener('submit', function(e) {
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Applying Filters...';
     });
 });
 </script>
 
-<?php include 'includes/footer.php'; ?> 
+<?php 
+// Check if footer file exists
+if (!file_exists('includes/footer.php')) {
+    die("Error: footer.php file not found");
+}
+
+include 'includes/footer.php'; 
+?> 

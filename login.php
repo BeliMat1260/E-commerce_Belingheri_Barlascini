@@ -48,33 +48,55 @@ include 'includes/header.php';
 <!-- Login Form -->
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h2 class="card-title text-center mb-4">Login</h2>
+        <div class="col-md-6 col-lg-5">
+            <div class="card fade-in">
+                <div class="card-body p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <h2 class="card-title fw-bold">Welcome Back</h2>
+                        <p class="text-secondary">Please sign in to continue</p>
+                    </div>
                     
                     <?php if ($error): ?>
-                        <div class="alert alert-danger"><?php echo $error; ?></div>
+                        <div class="alert alert-danger fade-in">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <?php echo $error; ?>
+                        </div>
                     <?php endif; ?>
                     
-                    <form method="POST" action="login.php">
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
+                    <form method="POST" action="login.php" class="needs-validation" novalidate>
+                        <div class="mb-4">
+                            <label for="username" class="form-label fw-medium">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-user text-secondary"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0" id="username" name="username" 
+                                       placeholder="Enter your username" required>
+                            </div>
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                        <div class="mb-4">
+                            <label for="password" class="form-label fw-medium">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-lock text-secondary"></i>
+                                </span>
+                                <input type="password" class="form-control border-start-0" id="password" name="password" 
+                                       placeholder="Enter your password" required>
+                            </div>
                         </div>
                         
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Login</button>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                            </button>
                         </div>
                     </form>
                     
-                    <div class="text-center mt-3">
-                        <p>Don't have an account? <a href="register.php">Register here</a></p>
+                    <div class="text-center mt-4">
+                        <p class="mb-0">Don't have an account? 
+                            <a href="register.php" class="text-primary fw-medium">Create one now</a>
+                        </p>
                     </div>
                 </div>
             </div>
