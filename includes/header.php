@@ -1,208 +1,97 @@
 <?php
-require_once "config/database.php";
-require_once "config/session.php";
+session_start();
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/functions.php';
 
 // Check session timeout
-if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 3600)) {
-    // Last request was more than 1 hour ago
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 1800)) {
     session_unset();
     session_destroy();
-    setFlashMessage('warning', 'Your session has expired. Please log in again.');
-    header("Location: login.php");
+    setFlashMessage('error', 'Your session has expired. Please login again.');
+    header('Location: login.php');
     exit();
 }
 $_SESSION['last_activity'] = time();
+
+// Get categories from database
+$categories_sql = "SELECT * FROM categories ORDER BY name";
+$categories_result = mysqli_query($conn, $categories_sql);
+$categories = mysqli_fetch_all($categories_result, MYSQLI_ASSOC);
+
+// Get cart count
+$cart_count = 0;
+if (isset($_SESSION['user_id'])) {
+    $cart_count_sql = "SELECT COUNT(*) as count FROM cart WHERE user_id = ?";
+    $cart_count_stmt = mysqli_prepare($conn, $cart_count_sql);
+    mysqli_stmt_bind_param($cart_count_stmt, "i", $_SESSION['user_id']);
+    mysqli_stmt_execute($cart_count_stmt);
+    $cart_count_result = mysqli_stmt_get_result($cart_count_stmt);
+    $cart_count = mysqli_fetch_assoc($cart_count_result)['count'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Pool & Water Bottles Shop</title>
-    <!-- CSS -->
+    <title>Premium Pool Shop</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
-    <link rel="stylesheet" href="assets/css/style.css">
-    <!-- JavaScript -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         .navbar {
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .search-form {
-            position: relative;
-            width: 300px;
-        }
-        .search-form input {
-            padding-right: 40px;
-        }
-        .search-form button {
-            position: absolute;
-            right: 0;
-            top: 0;
-            height: 100%;
-            border: none;
-            background: none;
-            padding: 0 15px;
-        }
-        .cart-badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            font-size: 0.7rem;
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
         }
         .nav-link {
-            position: relative;
-            color: rgba(255, 255, 255, 0.85);
-            padding: 0.5rem 1rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
         }
         .nav-link:hover {
-            color: #fff;
+            color: #0d6efd !important;
         }
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background-color: #fff;
-            transition: width 0.3s;
-        }
-        .nav-link:hover::after {
-            width: 100%;
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         .dropdown-item {
-            color: #212529;
-            padding: 0.5rem 1rem;
+            padding: 0.5rem 1.5rem;
         }
         .dropdown-item:hover {
             background-color: #f8f9fa;
             color: #0d6efd;
         }
-        .dropdown-item i {
-            margin-right: 0.5rem;
-            width: 1.25rem;
-            text-align: center;
+        .alert {
+            margin-bottom: 0;
+            border-radius: 0;
         }
-        
-        /* Simple CSS Dropdown */
-        .products-dropdown {
+        .search-form {
             position: relative;
-        }
-        .products-dropdown-menu {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background: white;
             min-width: 200px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: none;
-            z-index: 1000;
         }
-        .products-dropdown:hover .products-dropdown-menu {
-            display: block;
+        .search-form .form-control {
+            padding-right: 40px;
         }
-        .products-dropdown-menu a {
-            display: block;
-            padding: 10px 15px;
-            text-decoration: none;
-            color: #333;
-        }
-        .products-dropdown-menu a:hover {
-            background: #f8f9fa;
-        }
-        
-        /* Stili per il menu a tendina */
-        .categories-menu {
-            position: relative;
-            display: inline-block;
-        }
-        .categories-button {
-            background-color: #0d6efd;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .categories-button:hover {
-            background-color: #0b5ed7;
-        }
-        .categories-dropdown {
+        .search-form .btn {
             position: absolute;
-            top: 100%;
-            left: 0;
-            background-color: white;
-            min-width: 200px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            border-radius: 5px;
-            padding: 5px 0;
-            display: none;
-            z-index: 1000;
+            right: 0;
+            top: 0;
+            height: 100%;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
         }
-        .categories-menu:hover .categories-dropdown {
-            display: block;
-        }
-        .category-link {
-            padding: 10px 20px;
-            text-decoration: none;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .category-link:hover {
-            background-color: #f8f9fa;
-            color: #0d6efd;
-        }
-        .category-link i {
-            width: 20px;
-            text-align: center;
+        @media (max-width: 991.98px) {
+            .search-form {
+                width: 100%;
+                margin: 1rem 0;
+            }
+            .navbar-nav {
+                margin-bottom: 1rem;
+            }
         }
     </style>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const productsDropdown = document.querySelector('.products-dropdown');
-            const dropdownMenu = document.querySelector('.products-dropdown-menu');
-            
-            if (productsDropdown && dropdownMenu) {
-                productsDropdown.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    dropdownMenu.classList.toggle('show');
-                });
-
-                // Close dropdown when clicking outside
-                document.addEventListener('click', function(e) {
-                    if (!productsDropdown.contains(e.target)) {
-                        dropdownMenu.classList.remove('show');
-                    }
-                });
-            }
-
-            const categoryButton = document.querySelector('.category-button');
-            const categoryMenu = document.querySelector('.category-menu');
-            
-            if (categoryButton && categoryMenu) {
-                categoryButton.addEventListener('click', function() {
-                    categoryMenu.classList.toggle('show');
-                });
-                
-                // Chiudi il menu quando si clicca fuori
-                document.addEventListener('click', function(e) {
-                    if (!categoryButton.contains(e.target) && !categoryMenu.contains(e.target)) {
-                        categoryMenu.classList.remove('show');
-                    }
-                });
-            }
-        });
-    </script>
 </head>
 <body>
     <!-- Flash Messages -->
@@ -231,10 +120,25 @@ $_SESSION['last_activity'] = time();
                             <i class="fas fa-home"></i> Home
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="products.php">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="productsDropdown" role="button" data-bs-toggle="dropdown">
                             <i class="fas fa-th-large"></i> Products
                         </a>
+                        <ul class="dropdown-menu" aria-labelledby="productsDropdown">
+                            <li>
+                                <a class="dropdown-item" href="products.php">
+                                    <i class="fas fa-th"></i> All Products
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <?php foreach ($categories as $category): ?>
+                            <li>
+                                <a class="dropdown-item" href="products.php?category=<?php echo $category['id']; ?>">
+                                    <i class="<?php echo $category['icon'] ?? 'fas fa-tag'; ?>"></i> <?php echo htmlspecialchars($category['name']); ?>
+                                </a>
+                            </li>
+                            <?php endforeach; ?>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="about.php">
@@ -247,8 +151,8 @@ $_SESSION['last_activity'] = time();
                         </a>
                     </li>
                 </ul>
-                <form class="d-flex me-3" action="products.php" method="GET">
-                    <input class="form-control me-2" type="search" name="search" placeholder="Search products...">
+                <form class="d-flex me-3 search-form" action="products.php" method="GET">
+                    <input class="form-control" type="search" name="search" placeholder="Search products...">
                     <button class="btn btn-outline-light" type="submit">
                         <i class="fas fa-search"></i>
                     </button>
@@ -256,17 +160,7 @@ $_SESSION['last_activity'] = time();
                 <div class="d-flex">
                     <a href="cart.php" class="btn btn-outline-light me-2 position-relative">
                         <i class="fas fa-shopping-cart"></i>
-                        <?php 
-                        // Get cart count from database
-                        $cart_count_sql = "SELECT COUNT(*) as count FROM cart WHERE user_id = ?";
-                        $cart_count_stmt = mysqli_prepare($conn, $cart_count_sql);
-                        mysqli_stmt_bind_param($cart_count_stmt, "i", $_SESSION['user_id']);
-                        mysqli_stmt_execute($cart_count_stmt);
-                        $cart_count_result = mysqli_stmt_get_result($cart_count_stmt);
-                        $cart_count = mysqli_fetch_assoc($cart_count_result)['count'];
-                        
-                        if($cart_count > 0): 
-                        ?>
+                        <?php if($cart_count > 0): ?>
                             <span class="badge bg-danger position-absolute top-0 start-100 translate-middle"><?php echo $cart_count; ?></span>
                         <?php endif; ?>
                     </a>
@@ -318,5 +212,7 @@ $_SESSION['last_activity'] = time();
             </div>
         </div>
     </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html> 

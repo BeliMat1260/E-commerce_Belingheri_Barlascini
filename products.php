@@ -101,20 +101,20 @@ switch ($sort) {
 }
 
 try {
-    $stmt = mysqli_prepare($conn, $sql);
+$stmt = mysqli_prepare($conn, $sql);
     if (!$stmt) {
         throw new Exception("Error preparing statement: " . mysqli_error($conn));
     }
 
-    if (!empty($params)) {
-        mysqli_stmt_bind_param($stmt, $types, ...$params);
-    }
+if (!empty($params)) {
+    mysqli_stmt_bind_param($stmt, $types, ...$params);
+}
     
     if (!mysqli_stmt_execute($stmt)) {
         throw new Exception("Error executing statement: " . mysqli_stmt_error($stmt));
     }
     
-    $result = mysqli_stmt_get_result($stmt);
+$result = mysqli_stmt_get_result($stmt);
     if (!$result) {
         throw new Exception("Error getting result: " . mysqli_stmt_error($stmt));
     }
@@ -272,7 +272,7 @@ include 'includes/header.php';
         <!-- Products Grid -->
         <div class="col-md-9">
             <?php if (isset($result) && mysqli_num_rows($result) > 0): ?>
-                <div class="row" id="productsGrid">
+            <div class="row" id="productsGrid">
                     <?php while ($product = mysqli_fetch_assoc($result)): ?>
                         <div class="col-md-4 mb-4 product-item" 
                              data-price="<?php echo $product['price']; ?>"
@@ -351,12 +351,12 @@ include 'includes/header.php';
                         </div>
                     <?php endwhile; ?>
                 </div>
-            <?php else: ?>
+                <?php else: ?>
                 <div class="alert alert-info fade-in">
                     <i class="fas fa-info-circle me-2"></i>
-                    No products found matching your criteria.
-                </div>
-            <?php endif; ?>
+                            No products found matching your criteria.
+                    </div>
+                <?php endif; ?>
         </div>
     </div>
 </div>
@@ -409,7 +409,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form submission with loading state
     const filterForm = document.getElementById('filterForm');
     const submitButton = filterForm.querySelector('button[type="submit"]');
-
+    
     filterForm.addEventListener('submit', function(e) {
         submitButton.disabled = true;
         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Applying Filters...';
