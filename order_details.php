@@ -37,7 +37,7 @@ if (mysqli_num_rows($order_result) === 0) {
 $order = mysqli_fetch_assoc($order_result);
 
 // Recupera gli elementi dell'ordine
-$items_sql = "SELECT oi.*, p.name, p.sku,
+$items_sql = "SELECT oi.*, p.name,
               (SELECT image_url FROM product_images WHERE product_id = p.id AND image_order = 1 LIMIT 1) as product_image
               FROM order_items oi
               JOIN products p ON oi.product_id = p.id
@@ -142,7 +142,6 @@ include 'includes/header.php';
                             </div>
                             <div class="col-md-6">
                                 <h6 class="mb-1"><?php echo htmlspecialchars($item['name']); ?></h6>
-                                <p class="text-muted small mb-0">SKU: <?php echo htmlspecialchars($item['sku']); ?></p>
                                 <p class="mb-0">Quantity: <?php echo $item['quantity']; ?></p>
                             </div>
                             <div class="col-md-4 text-md-end">

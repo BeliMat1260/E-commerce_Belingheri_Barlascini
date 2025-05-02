@@ -3,27 +3,56 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Session configuration - must be set before session_start()
+// Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
-    try {
-        // Set session configuration before starting the session
-        ini_set('session.cookie_httponly', 1);
-        ini_set('session.use_only_cookies', 1);
-        ini_set('session.cookie_secure', 0); // Set to 0 for local development
-        ini_set('session.cookie_samesite', 'Lax'); // Changed to Lax for better compatibility
-        ini_set('session.gc_maxlifetime', 1800); // 30 minutes
-        ini_set('session.cookie_lifetime', 1800); // 30 minutes
-        
-        // Start session
-        if (!session_start()) {
-            throw new Exception("Failed to start session");
-        }
-    } catch (Exception $e) {
-        // Log error
-        error_log("Session error: " . $e->getMessage());
-        
-        // Show user-friendly error
-        die("Sorry, there was a problem starting your session. Please try again later.");
+    session_start();
+}
+
+/**
+ * Check if user is logged in
+ * @return bool
+ */
+function isLoggedIn() {
+    return isset($_SESSION['user_id']);
+}
+
+/**
+ * Set a flash message
+ * @param string $type The type of message (success, error, info, warning)
+ * @param string $message The message to display
+ */
+function setFlashMessage($type, $message) {
+    $_SESSION['flash_message'] = [
+        'type' => $type,
+        'message' => $message
+    ];
+}
+
+/**
+ * Get and clear flash message
+ * @return array|null The flash message or null if none exists
+ */
+function getFlashMessage() {
+    if (isset($_SESSION['flash_message'])) {
+        $message = $_SESSION['flash_message'];
+        unset($_SESSION['flash_message']);
+        return $message;
+    }
+    return null;
+}
+
+/**
+ * Display flash message if exists
+ */
+function displayFlashMessage() {
+    $flash = getFlashMessage();
+    if ($flash) {
+        $type = $flash['type'];
+        $message = $flash['message'];
+        echo "<div class='alert alert-{$type} alert-dismissible fade show' role='alert'>";
+        echo htmlspecialchars($message);
+        echo "<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>";
+        echo "</div>";
     }
 }
 

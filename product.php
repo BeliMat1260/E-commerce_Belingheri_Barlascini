@@ -3,9 +3,8 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-session_start();
-require_once "config/database.php";
 require_once "config/session.php";
+require_once "config/database.php";
 
 // Debug: Check database connection
 if (!$conn) {
@@ -27,7 +26,7 @@ $sql = "SELECT p.*, c.name as category_name,
         (SELECT image_url FROM product_images WHERE product_id = p.id AND image_order = 1 LIMIT 1) as primary_image
         FROM products p 
         LEFT JOIN categories c ON p.category_id = c.id 
-        WHERE p.id = ? AND p.is_active = 1";
+        WHERE p.id = ?";
 $stmt = mysqli_prepare($conn, $sql);
 mysqli_stmt_bind_param($stmt, "i", $product_id);
 mysqli_stmt_execute($stmt);
@@ -41,24 +40,18 @@ if (mysqli_num_rows($result) === 0) {
 $product = mysqli_fetch_assoc($result);
 
 // Get product images with order number
-$images_sql = "SELECT *, 
-              (SELECT COUNT(*) + 1 FROM product_images pi2 
-               WHERE pi2.product_id = pi1.product_id 
-               AND pi2.id < pi1.id) as image_order 
-              FROM product_images pi1 
-              WHERE product_id = ? 
-              ORDER BY image_order ASC";
+$images_sql = "SELECT * FROM product_images WHERE product_id = ? ORDER BY image_order ASC";
 $images_stmt = mysqli_prepare($conn, $images_sql);
 mysqli_stmt_bind_param($images_stmt, "i", $product_id);
 mysqli_stmt_execute($images_stmt);
 $images_result = mysqli_stmt_get_result($images_stmt);
 
 // Get product reviews with user information
-$reviews_sql = "SELECT r.*, u.first_name, u.last_name, u.profile_image 
+$reviews_sql = "SELECT r.*, u.first_name, u.last_name
                 FROM product_reviews r 
                 JOIN users u ON r.user_id = u.id 
                 WHERE r.product_id = ? 
-                ORDER BY r.created_at DESC";
+                ORDER BY r.id DESC";
 $reviews_stmt = mysqli_prepare($conn, $reviews_sql);
 mysqli_stmt_bind_param($reviews_stmt, "i", $product_id);
 mysqli_stmt_execute($reviews_stmt);
@@ -113,7 +106,7 @@ $related_sql = "SELECT p.*,
                 (SELECT AVG(rating) FROM product_reviews WHERE product_id = p.id) as avg_rating,
                 (SELECT image_url FROM product_images WHERE product_id = p.id AND image_order = 1 LIMIT 1) as primary_image
                 FROM products p 
-                WHERE p.category_id = ? AND p.id != ? AND p.is_active = 1 
+                WHERE p.category_id = ? AND p.id != ? 
                 LIMIT 4";
 $related_stmt = mysqli_prepare($conn, $related_sql);
 mysqli_stmt_bind_param($related_stmt, "ii", $product['category_id'], $product_id);
@@ -200,7 +193,6 @@ include 'includes/header.php';
             <!-- Product Info -->
             <div class="col-md-6">
                 <h1 class="mb-3"><?php echo htmlspecialchars($product['name']); ?></h1>
-                <p class="text-muted">SKU: <?php echo htmlspecialchars($product['sku']); ?></p>
                 
                 <div class="mb-4">
                     <h4 class="mb-2">Description</h4>
@@ -210,52 +202,47 @@ include 'includes/header.php';
                 <div class="mb-4">
                     <h4 class="mb-2">Details</h4>
                     <ul class="list-unstyled">
-                        <?php if ($product['material']): ?>
-                            <li><strong>Material:</strong> <?php echo htmlspecialchars($product['material']); ?></li>
-                        <?php endif; ?>
                         <?php if ($product['size']): ?>
                             <li><strong>Size:</strong> <?php echo htmlspecialchars($product['size']); ?></li>
                         <?php endif; ?>
                         <?php if ($product['weight']): ?>
                             <li><strong>Weight:</strong> <?php echo htmlspecialchars($product['weight']); ?> kg</li>
                         <?php endif; ?>
-                        <?php if ($product['color']): ?>
-                            <li><strong>Color:</strong> <?php echo htmlspecialchars($product['color']); ?></li>
-                        <?php endif; ?>
                     </ul>
                 </div>
                 
                 <div class="mb-4">
                     <h4 class="mb-2">Price</h4>
-                    <?php if ($product['discount_price']): ?>
-                        <p class="text-decoration-line-through text-muted">$<?php echo number_format($product['price'], 2); ?></p>
-                        <p class="h3 text-danger">$<?php echo number_format($product['discount_price'], 2); ?></p>
-                    <?php else: ?>
-                        <p class="h3">$<?php echo number_format($product['price'], 2); ?></p>
-                    <?php endif; ?>
+                    <p class="h3 text-primary mb-0">$<?php echo number_format($product['price'], 2); ?></p>
                 </div>
                 
                 <div class="mb-4">
                     <h4 class="mb-2">Availability</h4>
                     <?php if ($product['stock_quantity'] > 0): ?>
-                        <p class="text-success">In Stock (<?php echo $product['stock_quantity']; ?> available)</p>
+                        <p class="text-success mb-0">
+                            <i class="fas fa-check-circle"></i> In Stock (<?php echo $product['stock_quantity']; ?> available)
+                        </p>
                     <?php else: ?>
-                        <p class="text-danger">Out of Stock</p>
+                        <p class="text-danger mb-0">
+                            <i class="fas fa-times-circle"></i> Out of Stock
+                        </p>
                     <?php endif; ?>
                 </div>
                 
                 <?php if ($product['stock_quantity'] > 0): ?>
                     <form action="add_to_cart.php" method="POST" class="mb-4">
                         <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-                        <div class="row g-3 align-items-center">
-                            <div class="col-auto">
-                                <label for="quantity" class="col-form-label">Quantity:</label>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="quantity" class="form-label">Quantity</label>
+                                <input type="number" class="form-control" id="quantity" name="quantity" 
+                                       value="1" min="1" max="<?php echo $product['stock_quantity']; ?>" required>
                             </div>
-                            <div class="col-auto">
-                                <input type="number" id="quantity" name="quantity" class="form-control" value="1" min="1" max="<?php echo $product['stock_quantity']; ?>">
-                            </div>
-                            <div class="col-auto">
-                                <button type="submit" class="btn btn-primary">Add to Cart</button>
+                            <div class="col-md-8">
+                                <label class="form-label">&nbsp;</label>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-shopping-cart me-2"></i> Add to Cart
+                                </button>
                             </div>
                         </div>
                     </form>
@@ -264,9 +251,18 @@ include 'includes/header.php';
                 <div class="mb-4">
                     <h4 class="mb-2">Share</h4>
                     <div class="d-flex gap-2">
-                        <a href="#" class="btn btn-outline-primary"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="btn btn-outline-info"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="btn btn-outline-danger"><i class="fab fa-pinterest"></i></a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>" 
+                           class="btn btn-outline-primary" target="_blank">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://twitter.com/intent/tweet?url=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>&text=<?php echo urlencode($product['name']); ?>" 
+                           class="btn btn-outline-info" target="_blank">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/shareArticle?mini=true&url=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>" 
+                           class="btn btn-outline-secondary" target="_blank">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -405,16 +401,6 @@ include 'includes/header.php';
                                 <span class="text-muted">No image available</span>
                             </div>
                         <?php endif; ?>
-                        <?php if ($related['discount_price']): ?>
-                            <div class="position-absolute top-0 end-0 m-2">
-                                <span class="badge bg-danger">
-                                    <?php 
-                                    $discount = (($related['price'] - $related['discount_price']) / $related['price']) * 100;
-                                    echo round($discount) . '% OFF';
-                                    ?>
-                                </span>
-                            </div>
-                        <?php endif; ?>
                     </div>
                     <div class="card-body">
                         <h5 class="card-title"><?php echo htmlspecialchars($related['name']); ?></h5>
@@ -430,12 +416,7 @@ include 'includes/header.php';
                         <!-- Price -->
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <?php if ($related['discount_price']): ?>
-                                    <span class="text-decoration-line-through text-muted">$<?php echo number_format($related['price'], 2); ?></span>
-                                    <span class="text-danger fw-bold">$<?php echo number_format($related['discount_price'], 2); ?></span>
-                                <?php else: ?>
-                                    <span class="fw-bold">$<?php echo number_format($related['price'], 2); ?></span>
-                                <?php endif; ?>
+                                <span class="fw-bold">$<?php echo number_format($related['price'], 2); ?></span>
                             </div>
                             <span class="badge bg-<?php echo $related['stock_quantity'] > 0 ? 'success' : 'danger'; ?>">
                                 <?php echo $related['stock_quantity'] > 0 ? 'In Stock' : 'Out of Stock'; ?>

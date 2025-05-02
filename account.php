@@ -42,31 +42,9 @@ include 'includes/header.php';
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="card-title">Profile Information</h5>
-                    <form action="update_profile.php" method="POST" enctype="multipart/form-data" id="profileForm">
+                    <form action="update_profile.php" method="POST" id="profileForm">
                         <div class="row">
-                            <div class="col-md-4 text-center mb-4">
-                                <div class="position-relative d-inline-block">
-                                    <?php if ($user['profile_image']): ?>
-                                        <img src="<?php echo htmlspecialchars($user['profile_image']); ?>" 
-                                             class="rounded-circle" 
-                                             alt="Profile Image"
-                                             style="width: 150px; height: 150px; object-fit: cover;">
-                                    <?php else: ?>
-                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" 
-                                             style="width: 150px; height: 150px;">
-                                            <i class="fas fa-user fa-3x text-muted"></i>
-                                        </div>
-                                    <?php endif; ?>
-                                    <label for="profile_image" class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-2" style="cursor: pointer;">
-                                        <i class="fas fa-camera"></i>
-                                    </label>
-                                    <input type="file" id="profile_image" name="profile_image" class="d-none" accept="image/*">
-                                </div>
-                                <div class="mt-2">
-                                    <small class="text-muted">Click the camera icon to change your profile picture</small>
-                                </div>
-                            </div>
-                            <div class="col-md-8">
+                            <div class="col-md-12">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="first_name" class="form-label">First Name</label>
@@ -119,26 +97,6 @@ include 'includes/header.php';
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Profile image preview
-    const profileImage = document.getElementById('profile_image');
-    const profilePreview = document.querySelector('.rounded-circle img, .rounded-circle .fa-user').parentElement;
-    
-    profileImage.addEventListener('change', function() {
-        if (this.files && this.files[0]) {
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                if (profilePreview.querySelector('img')) {
-                    profilePreview.querySelector('img').src = e.target.result;
-                } else {
-                    profilePreview.innerHTML = `<img src="${e.target.result}" class="rounded-circle" alt="Profile Image" style="width: 150px; height: 150px; object-fit: cover;">`;
-                }
-            }
-            
-            reader.readAsDataURL(this.files[0]);
-        }
-    });
-    
     // Form validation
     const forms = document.querySelectorAll('form');
     forms.forEach(form => {

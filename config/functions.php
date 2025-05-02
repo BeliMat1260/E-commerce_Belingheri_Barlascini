@@ -6,13 +6,6 @@ require_once 'database.php';
 require_once 'session.php';
 
 /**
- * Check if user is logged in
- */
-function isLoggedIn() {
-    return isset($_SESSION['user_id']);
-}
-
-/**
  * Get current username
  */
 function getCurrentUsername() {
@@ -47,28 +40,6 @@ function requireLogin() {
         header("Location: login.php");
         exit();
     }
-}
-
-/**
- * Set flash message
- */
-function setFlashMessage($type, $message) {
-    $_SESSION['flash'] = [
-        'type' => $type,
-        'message' => $message
-    ];
-}
-
-/**
- * Get flash message
- */
-function getFlashMessage() {
-    if (isset($_SESSION['flash'])) {
-        $flash = $_SESSION['flash'];
-        unset($_SESSION['flash']);
-        return $flash;
-    }
-    return null;
 }
 
 /**

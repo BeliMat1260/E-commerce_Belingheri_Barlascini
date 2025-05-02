@@ -10,7 +10,7 @@ if (!isLoggedIn()) {
 }
 
 // Get user addresses
-$addresses_sql = "SELECT * FROM addresses WHERE user_id = ? ORDER BY is_default DESC, created_at DESC";
+$addresses_sql = "SELECT * FROM addresses WHERE user_id = ? ORDER BY is_default DESC";
 $addresses_stmt = mysqli_prepare($conn, $addresses_sql);
 mysqli_stmt_bind_param($addresses_stmt, "i", $_SESSION['user_id']);
 mysqli_stmt_execute($addresses_stmt);

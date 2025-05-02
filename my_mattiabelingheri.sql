@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Apr 26, 2025 alle 12:53
+-- Creato il: Mag 02, 2025 alle 20:41
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -37,17 +37,15 @@ CREATE TABLE `addresses` (
   `state` varchar(100) NOT NULL,
   `postal_code` varchar(20) NOT NULL,
   `country` varchar(100) NOT NULL,
-  `is_default` tinyint(1) DEFAULT 0,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `is_default` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dump dei dati per la tabella `addresses`
 --
 
-INSERT INTO `addresses` (`id`, `user_id`, `address_name`, `address_line1`, `address_line2`, `city`, `state`, `postal_code`, `country`, `is_default`, `created_at`, `updated_at`) VALUES
-(1, 1, 'ejhty', 'Dwerfve', 'vewrverw', 'htreh', 'verv', 'jyturjtrj', 'Canada', 1, '2025-04-26 09:40:20', '2025-04-26 09:48:11');
+INSERT INTO `addresses` (`id`, `user_id`, `address_name`, `address_line1`, `address_line2`, `city`, `state`, `postal_code`, `country`, `is_default`) VALUES
+(1, 1, 'ejhty', 'Dwerfve', 'vewrverw', 'htreh', 'verv', 'jyturjtrj', 'Canada', 1);
 
 -- --------------------------------------------------------
 
@@ -59,9 +57,7 @@ CREATE TABLE `cart` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `product_id` int(11) NOT NULL,
-  `quantity` int(11) NOT NULL DEFAULT 1,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `quantity` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -73,17 +69,16 @@ CREATE TABLE `cart` (
 CREATE TABLE `categories` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
-  `description` text DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `description` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dump dei dati per la tabella `categories`
 --
 
-INSERT INTO `categories` (`id`, `name`, `description`, `created_at`) VALUES
-(1, 'Pool Balls', 'High-quality pool balls for professional and recreational use', '2025-04-14 07:41:59'),
-(2, 'Water Balls', 'Fun and colorful water balls for pool games and activities', '2025-04-14 07:41:59');
+INSERT INTO `categories` (`id`, `name`, `description`) VALUES
+(1, 'Pool Balls', 'High-quality pool balls for professional and recreational use'),
+(2, 'Water Balls', 'Fun and colorful water balls for pool games and activities');
 
 -- --------------------------------------------------------
 
@@ -99,9 +94,6 @@ CREATE TABLE `orders` (
   `shipping_address` text NOT NULL,
   `billing_address` text NOT NULL,
   `payment_method` varchar(50) NOT NULL,
-  `payment_status` enum('pending','completed','failed') DEFAULT 'pending',
-  `tracking_number` varchar(100) DEFAULT NULL,
-  `estimated_delivery` date DEFAULT NULL,
   `notes` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -111,10 +103,10 @@ CREATE TABLE `orders` (
 -- Dump dei dati per la tabella `orders`
 --
 
-INSERT INTO `orders` (`id`, `user_id`, `total_amount`, `status`, `shipping_address`, `billing_address`, `payment_method`, `payment_status`, `tracking_number`, `estimated_delivery`, `notes`, `created_at`, `updated_at`) VALUES
-(1, 1, 64.95, 'cancelled', 'Mkmfqwefrwqeg3erq', 'etrherwthrwth', 'credit_card', 'pending', NULL, NULL, '', '2025-04-26 08:38:13', '2025-04-26 10:04:47'),
-(2, 1, 19.99, 'cancelled', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'credit_card', 'pending', NULL, NULL, '', '2025-04-26 10:49:25', '2025-04-26 10:51:51'),
-(3, 1, 49.99, 'pending', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'credit_card', 'pending', NULL, NULL, '', '2025-04-26 10:49:53', '2025-04-26 10:49:53');
+INSERT INTO `orders` (`id`, `user_id`, `total_amount`, `status`, `shipping_address`, `billing_address`, `payment_method`, `notes`, `created_at`, `updated_at`) VALUES
+(1, 1, 64.95, 'cancelled', 'Mkmfqwefrwqeg3erq', 'etrherwthrwth', 'credit_card', '', '2025-04-26 08:38:13', '2025-04-26 10:04:47'),
+(2, 1, 19.99, 'cancelled', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'credit_card', '', '2025-04-26 10:49:25', '2025-04-26 10:51:51'),
+(3, 1, 49.99, 'pending', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'credit_card', '', '2025-04-26 10:49:53', '2025-04-26 10:49:53');
 
 -- --------------------------------------------------------
 
@@ -127,18 +119,17 @@ CREATE TABLE `order_items` (
   `order_id` int(11) NOT NULL,
   `product_id` int(11) NOT NULL,
   `quantity` int(11) NOT NULL,
-  `price` decimal(10,2) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `price` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dump dei dati per la tabella `order_items`
 --
 
-INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `quantity`, `price`, `created_at`) VALUES
-(1, 1, 4, 5, 12.99, '2025-04-26 08:38:13'),
-(2, 2, 3, 1, 19.99, '2025-04-26 10:49:25'),
-(3, 3, 1, 1, 49.99, '2025-04-26 10:49:53');
+INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `quantity`, `price`) VALUES
+(1, 1, 4, 5, 12.99),
+(2, 2, 3, 1, 19.99),
+(3, 3, 1, 1, 49.99);
 
 -- --------------------------------------------------------
 
@@ -148,38 +139,28 @@ INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `quantity`, `price`, 
 
 CREATE TABLE `products` (
   `id` int(11) NOT NULL,
-  `sku` varchar(50) DEFAULT NULL,
   `name` varchar(100) NOT NULL,
   `description` text DEFAULT NULL,
-  `material` varchar(100) DEFAULT NULL,
   `size` varchar(50) DEFAULT NULL,
   `weight` decimal(10,2) DEFAULT NULL,
-  `color` varchar(50) DEFAULT NULL,
   `price` decimal(10,2) NOT NULL,
-  `discount_price` decimal(10,2) DEFAULT NULL,
   `stock_quantity` int(11) NOT NULL DEFAULT 0,
-  `featured` tinyint(1) DEFAULT 0,
-  `is_active` tinyint(1) DEFAULT 1,
   `rating` decimal(3,2) DEFAULT 0.00,
   `review_count` int(11) DEFAULT 0,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `category_id` int(11) DEFAULT NULL,
-  `capacity` varchar(50) DEFAULT NULL,
-  `dimensions` varchar(100) DEFAULT NULL
+  `category_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dump dei dati per la tabella `products`
 --
 
-INSERT INTO `products` (`id`, `sku`, `name`, `description`, `material`, `size`, `weight`, `color`, `price`, `discount_price`, `stock_quantity`, `featured`, `is_active`, `rating`, `review_count`, `created_at`, `updated_at`, `category_id`, `capacity`, `dimensions`) VALUES
-(1, 'PB0001', 'Professional Pool Ball Set', 'Complete set of 16 professional pool balls, including cue ball', 'Phenolic Resin', '57.15 mm', 170.00, NULL, 49.99, NULL, 49, 1, 1, 0.00, 0, '2025-04-14 07:35:04', '2025-04-26 10:49:53', 1, NULL, NULL),
-(2, 'PB0002', 'Water Exercise Ball', 'Durable water exercise ball for pool workouts', 'Phenolic Resin', '57.15 mm', 170.00, NULL, 29.99, NULL, 30, 1, 1, 0.00, 0, '2025-04-14 07:35:04', '2025-04-26 08:31:59', 1, NULL, NULL),
-(3, 'PB0003', 'Kids Pool Ball Set', 'Colorful set of 6 pool balls for children', 'Phenolic Resin', '57.15 mm', 170.00, NULL, 19.99, NULL, 40, 0, 1, 0.00, 0, '2025-04-14 07:35:04', '2025-04-26 10:51:51', 1, NULL, NULL),
-(4, 'PB0004', 'Floating Water Ball', 'Fun floating ball for pool games', 'Phenolic Resin', '57.15 mm', 170.00, NULL, 12.99, NULL, 60, 0, 1, 0.00, 0, '2025-04-14 07:35:04', '2025-04-26 10:04:47', 1, NULL, NULL),
-(5, 'PB0005', 'Tournament Pool Balls', 'High-quality tournament-grade pool balls', 'Phenolic Resin', '57.15 mm', 170.00, NULL, 79.99, NULL, 25, 1, 1, 0.00, 0, '2025-04-14 07:35:04', '2025-04-26 08:31:59', 1, NULL, NULL),
-(6, 'PB0006', 'Water Polo Ball', 'Official size water polo ball', 'Phenolic Resin', '57.15 mm', 170.00, NULL, 34.99, NULL, 20, 1, 1, 0.00, 0, '2025-04-14 07:35:04', '2025-04-26 08:31:59', 1, NULL, NULL);
+INSERT INTO `products` (`id`, `name`, `description`, `size`, `weight`, `price`, `stock_quantity`, `rating`, `review_count`, `category_id`) VALUES
+(1, 'Professional Pool Ball Set', 'Complete set of 16 professional pool balls, including cue ball', '57.15 mm', 170.00, 49.99, 49, 0.00, 0, 1),
+(2, 'Water Exercise Ball', 'Durable water exercise ball for pool workouts', '57.15 mm', 170.00, 29.99, 30, 0.00, 0, 1),
+(3, 'Kids Pool Ball Set', 'Colorful set of 6 pool balls for children', '57.15 mm', 170.00, 19.99, 40, 0.00, 0, 1),
+(4, 'Floating Water Ball', 'Fun floating ball for pool games', '57.15 mm', 170.00, 12.99, 60, 0.00, 0, 1),
+(5, 'Tournament Pool Balls', 'High-quality tournament-grade pool balls', '57.15 mm', 170.00, 79.99, 25, 0.00, 0, 1),
+(6, 'Water Polo Ball', 'Official size water polo ball', '57.15 mm', 170.00, 34.99, 20, 0.00, 0, 1);
 
 --
 -- Trigger `products`
@@ -230,8 +211,7 @@ CREATE TABLE `product_reviews` (
   `product_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `rating` int(11) NOT NULL,
-  `review` text DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `review` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -272,23 +252,16 @@ CREATE TABLE `users` (
   `address` text DEFAULT NULL,
   `city` varchar(100) DEFAULT NULL,
   `state` varchar(50) DEFAULT NULL,
-  `zip_code` varchar(20) DEFAULT NULL,
   `country` varchar(50) DEFAULT NULL,
-  `phone` varchar(20) DEFAULT NULL,
-  `role` enum('user','admin') DEFAULT 'user',
-  `last_login` timestamp NULL DEFAULT NULL,
-  `is_active` tinyint(1) DEFAULT 1,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `profile_image` varchar(255) DEFAULT NULL
+  `phone` varchar(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dump dei dati per la tabella `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `email`, `password`, `first_name`, `last_name`, `address`, `city`, `state`, `zip_code`, `country`, `phone`, `role`, `last_login`, `is_active`, `created_at`, `updated_at`, `profile_image`) VALUES
-(1, 'Belinga', 'ssssafwgfher@jnjn.bhb', '$2y$10$iIsOEfBCyDwmubsJQXoi8OOXZHSYnH8WulC.HcjAv8wue8YzxfqYC', 'Mattia', 'Belingheri', NULL, NULL, NULL, NULL, NULL, NULL, 'user', NULL, 1, '2025-04-26 08:37:34', '2025-04-26 08:37:34', NULL);
+INSERT INTO `users` (`id`, `username`, `email`, `password`, `first_name`, `last_name`, `address`, `city`, `state`, `country`, `phone`) VALUES
+(1, 'Belinga', 'ssssafwgfher@jnjn.bhb', '$2y$10$iIsOEfBCyDwmubsJQXoi8OOXZHSYnH8WulC.HcjAv8wue8YzxfqYC', 'Mattia', 'Belingheri', NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -299,16 +272,15 @@ INSERT INTO `users` (`id`, `username`, `email`, `password`, `first_name`, `last_
 CREATE TABLE `wishlist` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `product_id` int(11) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `product_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dump dei dati per la tabella `wishlist`
 --
 
-INSERT INTO `wishlist` (`id`, `user_id`, `product_id`, `created_at`) VALUES
-(3, 1, 2, '2025-04-26 10:18:22');
+INSERT INTO `wishlist` (`id`, `user_id`, `product_id`) VALUES
+(3, 1, 2);
 
 --
 -- Indici per le tabelle scaricate
@@ -362,9 +334,7 @@ ALTER TABLE `order_items`
 --
 ALTER TABLE `products`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `sku` (`sku`),
   ADD KEY `idx_category` (`category_id`),
-  ADD KEY `idx_featured` (`featured`),
   ADD KEY `idx_stock` (`stock_quantity`);
 
 --
@@ -443,7 +413,7 @@ ALTER TABLE `products`
 -- AUTO_INCREMENT per la tabella `product_images`
 --
 ALTER TABLE `product_images`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT per la tabella `product_reviews`

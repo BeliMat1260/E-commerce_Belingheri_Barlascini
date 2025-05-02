@@ -34,7 +34,7 @@ if ($quantity <= 0) {
 }
 
 // Verifica se il prodotto esiste
-$check_product_sql = "SELECT id, stock_quantity FROM products WHERE id = ? AND is_active = 1";
+$check_product_sql = "SELECT id, stock_quantity FROM products WHERE id = ?";
 $check_product_stmt = mysqli_prepare($conn, $check_product_sql);
 mysqli_stmt_bind_param($check_product_stmt, "i", $product_id);
 mysqli_stmt_execute($check_product_stmt);

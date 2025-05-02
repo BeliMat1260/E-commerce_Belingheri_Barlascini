@@ -10,7 +10,7 @@ if (!isLoggedIn()) {
 }
 
 // Get wishlist items with product details
-$wishlist_sql = "SELECT w.*, p.name, p.price, p.stock_quantity, p.discount_price,
+$wishlist_sql = "SELECT w.*, p.name, p.price, p.stock_quantity,
                 (SELECT image_url FROM product_images WHERE product_id = p.id AND image_order = 1 LIMIT 1) as product_image
                 FROM wishlist w
                 JOIN products p ON w.product_id = p.id
@@ -50,16 +50,6 @@ include 'includes/header.php';
                                             <span class="text-muted">No image available</span>
                                         </div>
                                     <?php endif; ?>
-                                    <?php if ($item['discount_price']): ?>
-                                        <div class="position-absolute top-0 end-0 m-2">
-                                            <span class="badge bg-danger">
-                                                <?php 
-                                                $discount = (($item['price'] - $item['discount_price']) / $item['price']) * 100;
-                                                echo round($discount) . '% OFF';
-                                                ?>
-                                            </span>
-                                        </div>
-                                    <?php endif; ?>
                                     <button class="btn btn-sm btn-danger position-absolute top-0 start-0 m-2 remove-from-wishlist"
                                             data-product-id="<?php echo $item['product_id']; ?>"
                                             title="Remove from Wishlist">
@@ -71,12 +61,7 @@ include 'includes/header.php';
                                     
                                     <!-- Price -->
                                     <div class="mb-3">
-                                        <?php if ($item['discount_price']): ?>
-                                            <span class="text-decoration-line-through text-muted">$<?php echo number_format($item['price'], 2); ?></span>
-                                            <span class="text-danger fw-bold">$<?php echo number_format($item['discount_price'], 2); ?></span>
-                                        <?php else: ?>
-                                            <span class="fw-bold">$<?php echo number_format($item['price'], 2); ?></span>
-                                        <?php endif; ?>
+                                        <span class="fw-bold">$<?php echo number_format($item['price'], 2); ?></span>
                                     </div>
                                     
                                     <!-- Stock Status -->

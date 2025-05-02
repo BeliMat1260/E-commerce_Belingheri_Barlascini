@@ -37,7 +37,7 @@ $sql = "SELECT p.*, c.name as category_name,
         (SELECT image_url FROM product_images WHERE product_id = p.id AND image_order = 1 LIMIT 1) as primary_image
         FROM products p 
         LEFT JOIN categories c ON p.category_id = c.id 
-        WHERE p.is_active = 1";
+        WHERE 1=1";
 
 $params = [];
 $types = "";
@@ -49,12 +49,11 @@ if ($category_id) {
 }
 
 if ($search) {
-    $sql .= " AND (p.name LIKE ? OR p.description LIKE ? OR p.sku LIKE ?)";
+    $sql .= " AND (p.name LIKE ? OR p.description LIKE ?)";
     $search_param = "%$search%";
     $params[] = $search_param;
     $params[] = $search_param;
-    $params[] = $search_param;
-    $types .= "sss";
+    $types .= "ss";
 }
 
 if ($min_price !== null) {
@@ -92,9 +91,6 @@ switch ($sort) {
         break;
     case 'name_desc':
         $sql .= " ORDER BY p.name DESC";
-        break;
-    case 'newest':
-        $sql .= " ORDER BY p.created_at DESC";
         break;
     default:
         $sql .= " ORDER BY p.name ASC";
@@ -252,7 +248,6 @@ include 'includes/header.php';
                                 <option value="price_asc" <?php echo $sort == 'price_asc' ? 'selected' : ''; ?>>Price (Low to High)</option>
                                 <option value="price_desc" <?php echo $sort == 'price_desc' ? 'selected' : ''; ?>>Price (High to Low)</option>
                                 <option value="rating_desc" <?php echo $sort == 'rating_desc' ? 'selected' : ''; ?>>Rating (High to Low)</option>
-                                <option value="newest" <?php echo $sort == 'newest' ? 'selected' : ''; ?>>Newest First</option>
                             </select>
                         </div>
 
@@ -276,8 +271,7 @@ include 'includes/header.php';
                     <?php while ($product = mysqli_fetch_assoc($result)): ?>
                         <div class="col-md-4 mb-4 product-item" 
                              data-price="<?php echo $product['price']; ?>"
-                             data-rating="<?php echo $product['avg_rating']; ?>"
-                             data-date="<?php echo strtotime($product['created_at']); ?>">
+                             data-rating="<?php echo $product['avg_rating']; ?>">
                             <div class="card h-100 fade-in">
                                 <div class="position-relative">
                                     <?php if ($product['primary_image']): ?>
@@ -290,16 +284,6 @@ include 'includes/header.php';
                                             <span class="text-muted">No image available</span>
                                         </div>
                                     <?php endif; ?>
-                                    <?php if ($product['discount_price']): ?>
-                                        <div class="position-absolute top-0 end-0 m-2">
-                                            <span class="badge bg-danger">
-                                                <?php 
-                                                $discount = (($product['price'] - $product['discount_price']) / $product['price']) * 100;
-                                                echo round($discount) . '% OFF';
-                                                ?>
-                                            </span>
-                                        </div>
-                                    <?php endif; ?>
                                     <?php if (isLoggedIn()): ?>
                                         <button class="btn btn-sm btn-outline-primary position-absolute top-0 start-0 m-2 add-to-wishlist"
                                                 data-product-id="<?php echo $product['id']; ?>"
@@ -310,7 +294,6 @@ include 'includes/header.php';
                                 </div>
                                 <div class="card-body">
                                     <h5 class="card-title"><?php echo htmlspecialchars($product['name']); ?></h5>
-                                    <p class="card-text text-muted small">SKU: <?php echo htmlspecialchars($product['sku']); ?></p>
                                     
                                     <!-- Rating -->
                                     <div class="mb-2">
@@ -323,12 +306,7 @@ include 'includes/header.php';
                                     <!-- Price -->
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <?php if ($product['discount_price']): ?>
-                                                <span class="text-decoration-line-through text-muted">$<?php echo number_format($product['price'], 2); ?></span>
-                                                <span class="text-danger fw-bold">$<?php echo number_format($product['discount_price'], 2); ?></span>
-                                            <?php else: ?>
-                                                <span class="fw-bold">$<?php echo number_format($product['price'], 2); ?></span>
-                                            <?php endif; ?>
+                                            <span class="fw-bold">$<?php echo number_format($product['price'], 2); ?></span>
                                         </div>
                                         <span class="badge bg-<?php echo $product['stock_quantity'] > 0 ? 'success' : 'danger'; ?>">
                                             <?php echo $product['stock_quantity'] > 0 ? 'In Stock' : 'Out of Stock'; ?>

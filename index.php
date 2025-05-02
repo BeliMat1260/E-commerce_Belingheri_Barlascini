@@ -80,8 +80,7 @@ require_once "config/database.php";
                                 (SELECT AVG(rating) FROM product_reviews WHERE product_id = p.id) as avg_rating,
                                 (SELECT image_url FROM product_images WHERE product_id = p.id AND image_order = 1 LIMIT 1) as primary_image
                                 FROM products p 
-                                WHERE p.is_active = 1 
-                                ORDER BY p.created_at DESC 
+                                ORDER BY p.id DESC 
                                 LIMIT 4";
                 $result = mysqli_query($conn, $featured_sql);
                 if(mysqli_num_rows($result) > 0):

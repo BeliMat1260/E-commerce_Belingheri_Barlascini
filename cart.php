@@ -92,7 +92,7 @@ if (isset($_POST['update_quantity'])) {
 }
 
 // Get cart items with product details
-$cart_sql = "SELECT c.*, p.name, p.price, p.stock_quantity, p.discount_price,
+$cart_sql = "SELECT c.*, p.name, p.price, p.stock_quantity,
             (SELECT image_url FROM product_images WHERE product_id = p.id AND image_order = 1 LIMIT 1) as product_image
             FROM cart c
             JOIN products p ON c.product_id = p.id
@@ -111,7 +111,7 @@ while ($row = mysqli_fetch_assoc($cart_result)) {
         'product_id' => $row['product_id'],
         'name' => $row['name'],
         'quantity' => $row['quantity'],
-        'price' => $row['discount_price'] ?: $row['price'],
+        'price' => $row['price'],
         'stock_quantity' => $row['stock_quantity'],
         'product_image' => $row['product_image']
     ];
