@@ -30,11 +30,7 @@
                                 <i class="fas fa-chevron-right me-2"></i>Water Bottles
                             </a>
                         </li>
-                        <li class="mb-2">
-                            <a href="/E-commerce_Belingheri_Barlascini/pages/about.php" class="text-light text-decoration-none">
-                                <i class="fas fa-chevron-right me-2"></i>About Us
-                            </a>
-                        </li>
+
                         <li>
                             <a href="/E-commerce_Belingheri_Barlascini/pages/contact.php" class="text-light text-decoration-none">
                                 <i class="fas fa-chevron-right me-2"></i>Contact Us

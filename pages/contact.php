@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . "/includes/config/database.php";
-require_once __DIR__ . "/includes/config/session.php";
+require_once __DIR__ . "/../includes/config/database.php";
+require_once __DIR__ . "/../includes/config/session.php";
 
 $success_message = '';
 $error_message = '';
@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Include header
-include __DIR__ . '/includes/components/header.php';
+include __DIR__ . '/../includes/components/header.php';
 ?>
 
 <!-- Contact Section -->
@@ -191,4 +191,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php include __DIR__ . '/includes/components/footer.php'; ?> 
+<?php include __DIR__ . '/../includes/components/footer.php'; ?> 

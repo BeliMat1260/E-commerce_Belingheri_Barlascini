@@ -192,14 +192,14 @@ if (isset($_SESSION['user_id'])) {
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <a class="dropdown-item" href="/E-commerce_Belingheri_Barlascini/logout.php">
+                                    <a class="dropdown-item" href="/E-commerce_Belingheri_Barlascini/auth/logout.php">
                                         <i class="fas fa-sign-out-alt"></i> Logout
                                     </a>
                                 </li>
                             </ul>
                         </div>
                     <?php else: ?>
-                        <a href="/E-commerce_Belingheri_Barlascini/login.php" class="btn btn-outline-light">
+                        <a href="/E-commerce_Belingheri_Barlascini/auth/login.php" class="btn btn-outline-light">
                             <i class="fas fa-sign-in-alt"></i> Login
                         </a>
                     <?php endif; ?>

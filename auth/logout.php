@@ -1,5 +1,6 @@
 <?php
-require_once "config/session.php";
+require_once __DIR__ . "/../includes/config/session.php";
+require_once __DIR__ . "/../includes/config/functions.php";
 
 // Set flash message before destroying session
 setFlashMessage('info', 'You have been successfully logged out.');
@@ -16,5 +17,5 @@ if (isset($_COOKIE[session_name()])) {
 session_destroy();
 
 // Redirect to home page
-header("Location: index.php");
+header('Location: /E-commerce_Belingheri_Barlascini/index.php');
 exit();

@@ -104,8 +104,11 @@ try {
 // Get categories for filter
 $categories_sql = "SELECT * FROM categories ORDER BY name";
 $categories_result = mysqli_query($conn, $categories_sql);
-if (!$categories_result) {
-    error_log("Error fetching categories: " . mysqli_error($conn));
+$categories_array = [];
+if ($categories_result && mysqli_num_rows($categories_result) > 0) {
+    while ($row = mysqli_fetch_assoc($categories_result)) {
+        $categories_array[] = $row;
+    }
 }
 
 // Include header
@@ -147,15 +150,17 @@ include __DIR__ . '/includes/components/header.php';
                             <select class="form-select" id="category_id" name="category_id">
                                 <option value="">All Categories</option>
                                 <?php 
-                                if ($categories_result) {
-                                    while ($category = mysqli_fetch_assoc($categories_result)): 
+                                if (!empty($categories_array)) {
+                                    foreach ($categories_array as $category): 
                                 ?>
                                     <option value="<?php echo $category['id']; ?>" 
-                                            <?php echo $category_id == $category['id'] ? 'selected' : ''; ?>>
+                                            <?php echo isset($category_id) && $category_id == $category['id'] ? 'selected' : ''; ?>>
                                         <?php echo htmlspecialchars($category['name']); ?>
                                     </option>
                                 <?php 
-                                    endwhile;
+                                    endforeach;
+                                } else {
+                                    echo '<option value="" disabled>No categories available</option>';
                                 }
                                 ?>
                             </select>

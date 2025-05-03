@@ -1,6 +1,6 @@
 <?php
-require_once "config/database.php";
-require_once "config/session.php";
+require_once __DIR__ . "/../includes/config/database.php";
+require_once __DIR__ . "/../includes/config/session.php";
 
 $error = '';
 
@@ -19,53 +19,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($row = mysqli_fetch_assoc($result)) {
             if (password_verify($password, $row['password'])) {
-                // Set session variables
                 $_SESSION['user_id'] = $row['id'];
                 $_SESSION['username'] = $row['username'];
-                $_SESSION['last_activity'] = time();
-                
-                // Set flash message
-                setFlashMessage('success', 'Welcome back, ' . htmlspecialchars($row['username']) . '!');
-                
-                // Redirect to previous page or home
-                $redirect = isset($_SESSION['redirect_after_login']) ? $_SESSION['redirect_after_login'] : 'index.php';
-                unset($_SESSION['redirect_after_login']);
-                header("Location: $redirect");
+                header('Location: /E-commerce_Belingheri_Barlascini/index.php');
                 exit();
             } else {
-                $error = 'Invalid password.';
+                $error = 'Invalid username or password.';
             }
         } else {
-            $error = 'Username not found.';
+            $error = 'Invalid username or password.';
         }
     }
 }
 
-// Include header
-include 'includes/header.php';
+// Include header after all potential redirects
+include __DIR__ . "/../includes/components/header.php";
 ?>
 
 <!-- Login Form -->
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">
-            <div class="card fade-in">
-                <div class="card-body p-4 p-md-5">
-                    <div class="text-center mb-4">
-                        <h2 class="card-title fw-bold">Welcome Back</h2>
-                        <p class="text-secondary">Please sign in to continue</p>
-                    </div>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4">Sign In</h2>
                     
                     <?php if ($error): ?>
-                        <div class="alert alert-danger fade-in">
-                            <i class="fas fa-exclamation-circle me-2"></i>
-                            <?php echo $error; ?>
+                        <div class="alert alert-danger">
+                            <?php echo htmlspecialchars($error); ?>
                         </div>
                     <?php endif; ?>
                     
-                    <form method="POST" action="login.php" class="needs-validation" novalidate>
-                        <div class="mb-4">
-                            <label for="username" class="form-label fw-medium">Username</label>
+                    <form method="POST" action="login.php">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0">
                                     <i class="fas fa-user text-secondary"></i>
@@ -76,7 +63,7 @@ include 'includes/header.php';
                         </div>
                         
                         <div class="mb-4">
-                            <label for="password" class="form-label fw-medium">Password</label>
+                            <label for="password" class="form-label">Password</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0">
                                     <i class="fas fa-lock text-secondary"></i>
@@ -104,4 +91,4 @@ include 'includes/header.php';
     </div>
 </div>
 
-<?php include 'includes/footer.php'; ?> 
+<?php include __DIR__ . "/../includes/components/footer.php"; ?> 
