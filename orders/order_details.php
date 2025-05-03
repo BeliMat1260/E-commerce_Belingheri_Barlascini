@@ -1,17 +1,18 @@
 <?php
-require_once "config/database.php";
-require_once "config/session.php";
+require_once __DIR__ . "/../includes/config/database.php";
+require_once __DIR__ . "/../includes/config/session.php";
+require_once __DIR__ . "/../includes/config/functions.php";
 
 // Verifica se l'utente è loggato
 if (!isLoggedIn()) {
     setFlashMessage('warning', 'Please log in to view order details.');
-    header("Location: login.php");
+    header("Location: /E-commerce_Belingheri_Barlascini/auth/login.php");
     exit();
 }
 
 // Verifica se l'ID dell'ordine è fornito
 if (!isset($_GET['id'])) {
-    header("Location: orders.php");
+    header("Location: /E-commerce_Belingheri_Barlascini/orders/orders.php");
     exit();
 }
 
@@ -48,7 +49,7 @@ mysqli_stmt_bind_param($stmt, "i", $order_id);
 mysqli_stmt_execute($stmt);
 $items_result = mysqli_stmt_get_result($stmt);
 
-include 'includes/header.php';
+include __DIR__ . '/../includes/components/header.php';
 ?>
 
 <div class="container py-5">
@@ -62,7 +63,7 @@ include 'includes/header.php';
                         <a href="account.php" class="list-group-item list-group-item-action">
                             <i class="fas fa-user me-2"></i> Profile
                         </a>
-                        <a href="orders.php" class="list-group-item list-group-item-action active">
+                        <a href="/E-commerce_Belingheri_Barlascini/orders/orders.php" class="list-group-item list-group-item-action active">
                             <i class="fas fa-shopping-bag me-2"></i> Orders
                         </a>
                         <a href="wishlist.php" class="list-group-item list-group-item-action">
@@ -71,7 +72,7 @@ include 'includes/header.php';
                         <a href="addresses.php" class="list-group-item list-group-item-action">
                             <i class="fas fa-map-marker-alt me-2"></i> Addresses
                         </a>
-                        <a href="logout.php" class="list-group-item list-group-item-action text-danger">
+                        <a href="/E-commerce_Belingheri_Barlascini/auth/logout.php" class="list-group-item list-group-item-action text-danger">
                             <i class="fas fa-sign-out-alt me-2"></i> Logout
                         </a>
                     </div>
@@ -248,4 +249,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php include 'includes/footer.php'; ?> 
+<?php include __DIR__ . '/../includes/components/footer.php'; ?> 

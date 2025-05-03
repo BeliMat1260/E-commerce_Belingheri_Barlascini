@@ -1,6 +1,7 @@
 <?php
-require_once "config/database.php";
-require_once "config/session.php";
+require_once __DIR__ . "/../includes/config/database.php";
+require_once __DIR__ . "/../includes/config/session.php";
+require_once __DIR__ . "/../includes/config/functions.php";
 
 $error = '';
 $success = '';
@@ -51,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Include header
-include 'includes/header.php';
+include __DIR__ . '/../includes/components/header.php';
 ?>
 
 <!-- Registration Form -->
@@ -169,7 +170,7 @@ include 'includes/header.php';
                     
                     <div class="text-center mt-4">
                         <p class="mb-0">Already have an account? 
-                            <a href="login.php" class="text-primary fw-medium">Sign in here</a>
+                            <a href="/E-commerce_Belingheri_Barlascini/auth/login.php" class="text-primary fw-medium">Sign in here</a>
                         </p>
                     </div>
                 </div>
@@ -212,4 +213,4 @@ document.querySelector('form').addEventListener('submit', function(e) {
 });
 </script>
 
-<?php include 'includes/footer.php'; ?> 
+<?php include __DIR__ . '/../includes/components/footer.php'; ?> 

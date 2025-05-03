@@ -5,7 +5,7 @@ require_once __DIR__ . "/../includes/config/session.php";
 // Verifica se l'utente è loggato
 if (!isLoggedIn()) {
     setFlashMessage('warning', 'Please log in to view your orders.');
-    header("Location: login.php");
+    header("Location: /E-commerce_Belingheri_Barlascini/auth/login.php");
     exit();
 }
 
@@ -32,33 +32,7 @@ include __DIR__ . '/../includes/components/header.php';
     <h1 class="mb-4">My Orders</h1>
     <div class="row">
         <!-- Sidebar -->
-        <div class="col-md-3">
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">Account Menu</h5>
-                    <div class="list-group list-group-flush">
-                        <a href="account.php" class="list-group-item list-group-item-action">
-                            <i class="fas fa-user me-2"></i> Profile
-                        </a>
-                        <a href="orders.php" class="list-group-item list-group-item-action active">
-                            <i class="fas fa-shopping-bag me-2"></i> Orders
-                        </a>
-                        <a href="wishlist.php" class="list-group-item list-group-item-action">
-                            <i class="fas fa-heart me-2"></i> Wishlist
-                        </a>
-                        <a href="addresses.php" class="list-group-item list-group-item-action">
-                            <i class="fas fa-map-marker-alt me-2"></i> Addresses
-                        </a>
-                        <a href="cart.php" class="list-group-item list-group-item-action">
-                            <i class="fas fa-shopping-cart me-2"></i> Cart
-                        </a>
-                        <a href="logout.php" class="list-group-item list-group-item-action text-danger">
-                            <i class="fas fa-sign-out-alt me-2"></i> Logout
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <?php include __DIR__ . '/../includes/components/account_menu.php'; ?>
 
         <!-- Main Content -->
         <div class="col-md-9">
@@ -118,7 +92,7 @@ include __DIR__ . '/../includes/components/header.php';
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle me-2"></i>
                     You haven't placed any orders yet.
-                    <a href="products.php" class="alert-link">Start shopping</a>
+                    <a href="/E-commerce_Belingheri_Barlascini/products.php" class="alert-link">Start shopping</a>
                 </div>
             <?php endif; ?>
         </div>

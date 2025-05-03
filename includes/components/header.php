@@ -166,7 +166,7 @@ if (isset($_SESSION['user_id'])) {
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                 <li>
-                                    <a class="dropdown-item" href="/E-commerce_Belingheri_Barlascini/account.php">
+                                    <a class="dropdown-item" href="/E-commerce_Belingheri_Barlascini/account/account.php">
                                         <i class="fas fa-user-circle"></i> Profile
                                     </a>
                                 </li>
