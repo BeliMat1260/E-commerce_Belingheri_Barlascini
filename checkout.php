@@ -1,11 +1,12 @@
 <?php
-require_once "config/database.php";
-require_once "config/session.php";
+require_once __DIR__ . "/includes/config/database.php";
+require_once __DIR__ . "/includes/config/session.php";
+require_once __DIR__ . "/includes/config/functions.php";
 
 // Redirect if not logged in
 if (!isLoggedIn()) {
-    $_SESSION['redirect_after_login'] = 'checkout.php';
-    header("Location: login.php");
+    $_SESSION['redirect_after_login'] = '/E-commerce_Belingheri_Barlascini/checkout.php';
+    header("Location: /E-commerce_Belingheri_Barlascini/auth/login.php");
     exit();
 }
 
@@ -19,7 +20,7 @@ $cart_count = mysqli_fetch_assoc($cart_result)['count'];
 
 if ($cart_count == 0) {
     setFlashMessage('warning', 'Your cart is empty. Please add some products before checkout.');
-    header("Location: cart.php");
+    header("Location: /E-commerce_Belingheri_Barlascini/cart/cart.php");
     exit();
 }
 
@@ -115,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Include header
-include 'includes/header.php';
+include __DIR__ . '/includes/components/header.php';
 ?>
 
 <!-- Checkout Section -->
@@ -270,7 +271,7 @@ include 'includes/header.php';
     </div>
 </div>
 
-<?php include 'includes/footer.php'; ?>
+<?php include __DIR__ . '/includes/components/footer.php'; ?>
 
 <script>
 function updateShippingAddress(value) {

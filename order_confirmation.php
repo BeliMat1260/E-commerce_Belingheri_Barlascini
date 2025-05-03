@@ -1,11 +1,12 @@
 <?php
-require_once "config/database.php";
-require_once "config/session.php";
+require_once __DIR__ . "/includes/config/database.php";
+require_once __DIR__ . "/includes/config/session.php";
+require_once __DIR__ . "/includes/config/functions.php";
 
 // Verifica se l'utente è loggato
 if (!isLoggedIn()) {
     setFlashMessage('error', 'Please log in to view your order.');
-    header("Location: login.php");
+    header("Location: /E-commerce_Belingheri_Barlascini/auth/login.php");
     exit();
 }
 
@@ -26,7 +27,7 @@ $order = mysqli_fetch_assoc($order_result);
 // Redirect if order not found or doesn't belong to user
 if (!$order) {
     setFlashMessage('error', 'Order not found.');
-    header("Location: orders.php");
+    header("Location: /E-commerce_Belingheri_Barlascini/orders/orders.php");
     exit();
 }
 
@@ -42,7 +43,7 @@ mysqli_stmt_execute($items_stmt);
 $items_result = mysqli_stmt_get_result($items_stmt);
 
 // Include header
-include 'includes/header.php';
+include __DIR__ . '/includes/components/header.php';
 ?>
 
 <!-- Order Confirmation Section -->
@@ -144,10 +145,10 @@ include 'includes/header.php';
 
             <!-- Action Buttons -->
             <div class="d-flex justify-content-between mt-4">
-                <a href="products.php" class="btn btn-outline-primary">
+                <a href="/E-commerce_Belingheri_Barlascini/products.php" class="btn btn-outline-primary">
                     <i class="fas fa-shopping-cart me-2"></i>Continue Shopping
                 </a>
-                <a href="orders.php" class="btn btn-primary">
+                <a href="/E-commerce_Belingheri_Barlascini/orders/orders.php" class="btn btn-primary">
                     <i class="fas fa-list me-2"></i>View All Orders
                 </a>
             </div>
@@ -155,7 +156,7 @@ include 'includes/header.php';
     </div>
 </div>
 
-<?php include 'includes/footer.php'; ?>
+<?php include __DIR__ . '/includes/components/footer.php'; ?>
 
 <script>
 let deliveryTimer;

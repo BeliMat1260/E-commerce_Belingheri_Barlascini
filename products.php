@@ -250,13 +250,19 @@ include __DIR__ . '/includes/components/header.php';
                                     <div class="d-grid gap-2">
                                         <a href="/E-commerce_Belingheri_Barlascini/pages/product.php?id=<?php echo $product['id']; ?>" class="btn btn-outline-primary">View Details</a>
                                         <?php if ($product['stock_quantity'] > 0): ?>
-                                            <form action="/E-commerce_Belingheri_Barlascini/cart.php" method="POST">
-                                                <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-                                                <input type="hidden" name="quantity" value="1">
-                                                <button type="submit" name="add_to_cart" class="btn btn-primary w-100">
-                                                    <i class="fas fa-shopping-cart me-2"></i>Add to Cart
-                                                </button>
-                                            </form>
+                                            <?php if (isLoggedIn()): ?>
+                                                <form action="/E-commerce_Belingheri_Barlascini/cart/add_to_cart.php" method="POST">
+                                                    <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
+                                                    <input type="hidden" name="quantity" value="1">
+                                                    <button type="submit" name="add_to_cart" class="btn btn-primary w-100">
+                                                        <i class="fas fa-shopping-cart me-2"></i>Add to Cart
+                                                    </button>
+                                                </form>
+                                            <?php else: ?>
+                                                <a href="/E-commerce_Belingheri_Barlascini/auth/login.php" class="btn btn-primary w-100">
+                                                    <i class="fas fa-sign-in-alt me-2"></i>Login to Add to Cart
+                                                </a>
+                                            <?php endif; ?>
                                         <?php else: ?>
                                             <button class="btn btn-secondary w-100" disabled>Out of Stock</button>
                                         <?php endif; ?>

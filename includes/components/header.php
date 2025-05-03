@@ -153,7 +153,7 @@ if (isset($_SESSION['user_id'])) {
                     </button>
                 </form>
                 <div class="d-flex">
-                    <a href="/E-commerce_Belingheri_Barlascini/cart/cart.php" class="btn btn-outline-light me-2 position-relative">
+                    <a href="<?php echo isLoggedIn() ? '/E-commerce_Belingheri_Barlascini/cart/cart.php' : '/E-commerce_Belingheri_Barlascini/auth/login.php'; ?>" class="btn btn-outline-light me-2 position-relative">
                         <i class="fas fa-shopping-cart"></i>
                         <?php if($cart_count > 0): ?>
                             <span class="badge bg-danger position-absolute top-0 start-100 translate-middle"><?php echo $cart_count; ?></span>
