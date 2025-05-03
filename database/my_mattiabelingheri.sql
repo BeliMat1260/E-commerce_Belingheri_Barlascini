@@ -145,8 +145,6 @@ CREATE TABLE `products` (
   `weight` decimal(10,2) DEFAULT NULL,
   `price` decimal(10,2) NOT NULL,
   `stock_quantity` int(11) NOT NULL DEFAULT 0,
-  `rating` decimal(3,2) DEFAULT 0.00,
-  `review_count` int(11) DEFAULT 0,
   `category_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -154,13 +152,13 @@ CREATE TABLE `products` (
 -- Dump dei dati per la tabella `products`
 --
 
-INSERT INTO `products` (`id`, `name`, `description`, `size`, `weight`, `price`, `stock_quantity`, `rating`, `review_count`, `category_id`) VALUES
-(1, 'Professional Pool Ball Set', 'Complete set of 16 professional pool balls, including cue ball', '57.15 mm', 170.00, 49.99, 49, 0.00, 0, 1),
-(2, 'Water Exercise Ball', 'Durable water exercise ball for pool workouts', '57.15 mm', 170.00, 29.99, 30, 0.00, 0, 1),
-(3, 'Kids Pool Ball Set', 'Colorful set of 6 pool balls for children', '57.15 mm', 170.00, 19.99, 40, 0.00, 0, 1),
-(4, 'Floating Water Ball', 'Fun floating ball for pool games', '57.15 mm', 170.00, 12.99, 60, 0.00, 0, 1),
-(5, 'Tournament Pool Balls', 'High-quality tournament-grade pool balls', '57.15 mm', 170.00, 79.99, 25, 0.00, 0, 1),
-(6, 'Water Polo Ball', 'Official size water polo ball', '57.15 mm', 170.00, 34.99, 20, 0.00, 0, 1);
+INSERT INTO `products` (`id`, `name`, `description`, `size`, `weight`, `price`, `stock_quantity`, `category_id`) VALUES
+(1, 'Professional Pool Ball Set', 'Complete set of 16 professional pool balls, including cue ball', '57.15 mm', 170.00, 49.99, 49, 1),
+(2, 'Water Exercise Ball', 'Durable water exercise ball for pool workouts', '57.15 mm', 170.00, 29.99, 30, 1),
+(3, 'Kids Pool Ball Set', 'Colorful set of 6 pool balls for children', '57.15 mm', 170.00, 19.99, 40, 1),
+(4, 'Floating Water Ball', 'Fun floating ball for pool games', '57.15 mm', 170.00, 12.99, 60, 1),
+(5, 'Tournament Pool Balls', 'High-quality tournament-grade pool balls', '57.15 mm', 170.00, 79.99, 25, 1),
+(6, 'Water Polo Ball', 'Official size water polo ball', '57.15 mm', 170.00, 34.99, 20, 1);
 
 --
 -- Trigger `products`
@@ -199,42 +197,6 @@ INSERT INTO `product_images` (`id`, `product_id`, `image_url`, `created_at`, `im
 (4, 4, 'assets/images/floating-ball.jpg', '2025-04-26 08:31:59', 1),
 (5, 5, 'assets/images/tournament-balls.jpg', '2025-04-26 08:31:59', 1),
 (6, 6, 'assets/images/water-polo-ball.jpg', '2025-04-26 08:31:59', 1);
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `product_reviews`
---
-
-CREATE TABLE `product_reviews` (
-  `id` int(11) NOT NULL,
-  `product_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `rating` int(11) NOT NULL,
-  `review` text DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Trigger `product_reviews`
---
-DELIMITER $$
-CREATE TRIGGER `after_review_delete` AFTER DELETE ON `product_reviews` FOR EACH ROW BEGIN
-    UPDATE products 
-    SET rating = (SELECT AVG(rating) FROM product_reviews WHERE product_id = OLD.product_id),
-        review_count = (SELECT COUNT(*) FROM product_reviews WHERE product_id = OLD.product_id)
-    WHERE id = OLD.product_id;
-END
-$$
-DELIMITER ;
-DELIMITER $$
-CREATE TRIGGER `after_review_insert` AFTER INSERT ON `product_reviews` FOR EACH ROW BEGIN
-    UPDATE products 
-    SET rating = (SELECT AVG(rating) FROM product_reviews WHERE product_id = NEW.product_id),
-        review_count = (SELECT COUNT(*) FROM product_reviews WHERE product_id = NEW.product_id)
-    WHERE id = NEW.product_id;
-END
-$$
-DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -346,14 +308,6 @@ ALTER TABLE `product_images`
   ADD KEY `idx_product_images_order` (`product_id`,`image_order`);
 
 --
--- Indici per le tabelle `product_reviews`
---
-ALTER TABLE `product_reviews`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `product_id` (`product_id`),
-  ADD KEY `user_id` (`user_id`);
-
---
 -- Indici per le tabelle `users`
 --
 ALTER TABLE `users`
@@ -416,12 +370,6 @@ ALTER TABLE `product_images`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
--- AUTO_INCREMENT per la tabella `product_reviews`
---
-ALTER TABLE `product_reviews`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT per la tabella `users`
 --
 ALTER TABLE `users`
@@ -474,13 +422,6 @@ ALTER TABLE `products`
 --
 ALTER TABLE `product_images`
   ADD CONSTRAINT `fk_image_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`);
-
---
--- Limiti per la tabella `product_reviews`
---
-ALTER TABLE `product_reviews`
-  ADD CONSTRAINT `fk_review_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`),
-  ADD CONSTRAINT `fk_review_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 --
 -- Limiti per la tabella `wishlist`

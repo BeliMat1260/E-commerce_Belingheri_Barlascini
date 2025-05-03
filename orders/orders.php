@@ -1,6 +1,6 @@
 <?php
-require_once "config/database.php";
-require_once "config/session.php";
+require_once __DIR__ . "/../includes/config/database.php";
+require_once __DIR__ . "/../includes/config/session.php";
 
 // Verifica se l'utente è loggato
 if (!isLoggedIn()) {
@@ -25,7 +25,7 @@ mysqli_stmt_bind_param($stmt, "i", $_SESSION['user_id']);
 mysqli_stmt_execute($stmt);
 $orders_result = mysqli_stmt_get_result($stmt);
 
-include 'includes/header.php';
+include __DIR__ . '/../includes/components/header.php';
 ?>
 
 <div class="container py-5">
@@ -164,4 +164,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php include 'includes/footer.php'; ?> 
+<?php include __DIR__ . '/../includes/components/footer.php'; ?> 

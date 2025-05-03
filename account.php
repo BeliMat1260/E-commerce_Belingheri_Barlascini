@@ -1,11 +1,11 @@
 <?php
-require_once "config/database.php";
-require_once "config/session.php";
+require_once __DIR__ . "/includes/config/database.php";
+require_once __DIR__ . "/includes/config/session.php";
 
 // Verifica se l'utente è loggato
 if (!isLoggedIn()) {
     setFlashMessage('error', 'Please log in to view your account.');
-    header("Location: login.php");
+    header("Location: /E-commerce_Belingheri_Barlascini/login.php");
     exit();
 }
 
@@ -26,7 +26,7 @@ $cart_result = mysqli_stmt_get_result($cart_stmt);
 $cart_count = mysqli_fetch_assoc($cart_result)['cart_count'];
 
 // Include header
-include 'includes/header.php';
+include __DIR__ . '/includes/components/header.php';
 ?>
 
 <!-- Account Section -->
@@ -35,7 +35,7 @@ include 'includes/header.php';
     
     <div class="row">
         <!-- Account Menu -->
-        <?php include 'includes/account_menu.php'; ?>
+        <?php include __DIR__ . '/includes/components/account_menu.php'; ?>
         
         <!-- Account Content -->
         <div class="col-md-9">
@@ -129,4 +129,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php include 'includes/footer.php'; ?> 
+<?php include __DIR__ . '/includes/components/footer.php'; ?> 

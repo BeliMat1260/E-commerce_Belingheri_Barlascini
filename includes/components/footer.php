@@ -16,27 +16,27 @@
                     <h5 class="mb-3">Quick Links</h5>
                     <ul class="list-unstyled">
                         <li class="mb-2">
-                            <a href="products.php?category=pool_balls" class="text-light text-decoration-none">
+                            <a href="/E-commerce_Belingheri_Barlascini/products.php?category=pool_balls" class="text-light text-decoration-none">
                                 <i class="fas fa-chevron-right me-2"></i>Pool Balls
                             </a>
                         </li>
                         <li class="mb-2">
-                            <a href="products.php?category=pool_tables" class="text-light text-decoration-none">
+                            <a href="/E-commerce_Belingheri_Barlascini/products.php?category=pool_tables" class="text-light text-decoration-none">
                                 <i class="fas fa-chevron-right me-2"></i>Pool Tables
                             </a>
                         </li>
                         <li class="mb-2">
-                            <a href="products.php?category=water_bottles" class="text-light text-decoration-none">
+                            <a href="/E-commerce_Belingheri_Barlascini/products.php?category=water_bottles" class="text-light text-decoration-none">
                                 <i class="fas fa-chevron-right me-2"></i>Water Bottles
                             </a>
                         </li>
                         <li class="mb-2">
-                            <a href="about.php" class="text-light text-decoration-none">
+                            <a href="/E-commerce_Belingheri_Barlascini/pages/about.php" class="text-light text-decoration-none">
                                 <i class="fas fa-chevron-right me-2"></i>About Us
                             </a>
                         </li>
                         <li>
-                            <a href="contact.php" class="text-light text-decoration-none">
+                            <a href="/E-commerce_Belingheri_Barlascini/pages/contact.php" class="text-light text-decoration-none">
                                 <i class="fas fa-chevron-right me-2"></i>Contact Us
                             </a>
                         </li>
@@ -70,8 +70,8 @@
                     <p class="mb-0">&copy; 2024 Premium Pool Shop. All rights reserved.</p>
                 </div>
                 <div class="col-md-6 text-center text-md-end">
-                    <a href="privacy.php" class="text-light text-decoration-none me-3">Privacy Policy</a>
-                    <a href="terms.php" class="text-light text-decoration-none">Terms of Service</a>
+                    <a href="/E-commerce_Belingheri_Barlascini/pages/privacy.php" class="text-light text-decoration-none me-3">Privacy Policy</a>
+                    <a href="/E-commerce_Belingheri_Barlascini/pages/terms.php" class="text-light text-decoration-none">Terms of Service</a>
                 </div>
             </div>
         </div>
@@ -99,6 +99,6 @@
             });
         });
     </script>
-    <?php include 'init.php'; ?>
+    <?php include __DIR__ . '/../config/init.php'; ?>
 </body>
 </html> 

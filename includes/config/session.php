@@ -17,6 +17,14 @@ function isLoggedIn() {
 }
 
 /**
+ * Get current username
+ * @return string The username or 'Guest' if not logged in
+ */
+function getCurrentUsername() {
+    return $_SESSION['username'] ?? 'Guest';
+}
+
+/**
  * Set a flash message
  * @param string $type The type of message (success, error, info, warning)
  * @param string $message The message to display

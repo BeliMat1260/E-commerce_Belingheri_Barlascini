@@ -3,18 +3,10 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Check if database connection file exists
-if (!file_exists("config/database.php")) {
-    die("Error: database.php configuration file not found");
-}
-
-// Check if session file exists
-if (!file_exists("config/session.php")) {
-    die("Error: session.php configuration file not found");
-}
-
-require_once "config/database.php";
-require_once "config/session.php";
+// Include required files
+require_once __DIR__ . "/includes/config/database.php";
+require_once __DIR__ . "/includes/config/session.php";
+require_once __DIR__ . "/includes/config/functions.php";
 
 // Verify database connection
 if (!isset($conn) || !$conn) {
@@ -32,8 +24,6 @@ $in_stock = isset($_GET['in_stock']) ? true : false;
 
 // Build SQL query with proper joins and conditions
 $sql = "SELECT p.*, c.name as category_name,
-        (SELECT COUNT(*) FROM product_reviews WHERE product_id = p.id) as review_count,
-        COALESCE((SELECT AVG(rating) FROM product_reviews WHERE product_id = p.id), 0) as avg_rating,
         (SELECT image_url FROM product_images WHERE product_id = p.id AND image_order = 1 LIMIT 1) as primary_image
         FROM products p 
         LEFT JOIN categories c ON p.category_id = c.id 
@@ -68,12 +58,6 @@ if ($max_price !== null) {
     $types .= "d";
 }
 
-if ($min_rating !== null) {
-    $sql .= " AND (SELECT AVG(rating) FROM product_reviews WHERE product_id = p.id) >= ?";
-    $params[] = $min_rating;
-    $types .= "i";
-}
-
 if ($in_stock) {
     $sql .= " AND p.stock_quantity > 0";
 }
@@ -86,9 +70,6 @@ switch ($sort) {
     case 'price_desc':
         $sql .= " ORDER BY p.price DESC";
         break;
-    case 'rating_desc':
-        $sql .= " ORDER BY avg_rating DESC, review_count DESC";
-        break;
     case 'name_desc':
         $sql .= " ORDER BY p.name DESC";
         break;
@@ -97,20 +78,20 @@ switch ($sort) {
 }
 
 try {
-$stmt = mysqli_prepare($conn, $sql);
+    $stmt = mysqli_prepare($conn, $sql);
     if (!$stmt) {
         throw new Exception("Error preparing statement: " . mysqli_error($conn));
     }
 
-if (!empty($params)) {
-    mysqli_stmt_bind_param($stmt, $types, ...$params);
-}
+    if (!empty($params)) {
+        mysqli_stmt_bind_param($stmt, $types, ...$params);
+    }
     
     if (!mysqli_stmt_execute($stmt)) {
         throw new Exception("Error executing statement: " . mysqli_stmt_error($stmt));
     }
     
-$result = mysqli_stmt_get_result($stmt);
+    $result = mysqli_stmt_get_result($stmt);
     if (!$result) {
         throw new Exception("Error getting result: " . mysqli_stmt_error($stmt));
     }
@@ -127,13 +108,8 @@ if (!$categories_result) {
     error_log("Error fetching categories: " . mysqli_error($conn));
 }
 
-// Check if header file exists
-if (!file_exists('includes/header.php')) {
-    die("Error: header.php file not found");
-}
-
 // Include header
-include 'includes/header.php';
+include __DIR__ . '/includes/components/header.php';
 ?>
 
 <!-- Products Section -->
@@ -151,7 +127,7 @@ include 'includes/header.php';
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="card-title mb-4">Filters</h5>
-                    <form action="products.php" method="GET" id="filterForm">
+                    <form action="/E-commerce_Belingheri_Barlascini/products.php" method="GET" id="filterForm">
                         <!-- Search -->
                         <div class="mb-4">
                             <label for="search" class="form-label fw-medium">Search</label>
@@ -208,26 +184,6 @@ include 'includes/header.php';
                             </div>
                         </div>
 
-                        <!-- Rating Filter -->
-                        <div class="mb-4">
-                            <label for="min_rating" class="form-label fw-medium">Minimum Rating</label>
-                            <select class="form-select" id="min_rating" name="min_rating">
-                                <option value="">Any Rating</option>
-                                <option value="4" <?php echo $min_rating == 4 ? 'selected' : ''; ?>>
-                                    <i class="fas fa-star"></i> 4+ Stars
-                                </option>
-                                <option value="3" <?php echo $min_rating == 3 ? 'selected' : ''; ?>>
-                                    <i class="fas fa-star"></i> 3+ Stars
-                                </option>
-                                <option value="2" <?php echo $min_rating == 2 ? 'selected' : ''; ?>>
-                                    <i class="fas fa-star"></i> 2+ Stars
-                                </option>
-                                <option value="1" <?php echo $min_rating == 1 ? 'selected' : ''; ?>>
-                                    <i class="fas fa-star"></i> 1+ Stars
-                                </option>
-                            </select>
-                        </div>
-
                         <!-- Stock Filter -->
                         <div class="mb-4">
                             <div class="form-check">
@@ -247,7 +203,6 @@ include 'includes/header.php';
                                 <option value="name_desc" <?php echo $sort == 'name_desc' ? 'selected' : ''; ?>>Name (Z-A)</option>
                                 <option value="price_asc" <?php echo $sort == 'price_asc' ? 'selected' : ''; ?>>Price (Low to High)</option>
                                 <option value="price_desc" <?php echo $sort == 'price_desc' ? 'selected' : ''; ?>>Price (High to Low)</option>
-                                <option value="rating_desc" <?php echo $sort == 'rating_desc' ? 'selected' : ''; ?>>Rating (High to Low)</option>
                             </select>
                         </div>
 
@@ -255,7 +210,7 @@ include 'includes/header.php';
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-filter me-2"></i>Apply Filters
                             </button>
-                            <a href="products.php" class="btn btn-outline-secondary">
+                            <a href="/E-commerce_Belingheri_Barlascini/products.php" class="btn btn-outline-secondary">
                                 <i class="fas fa-times me-2"></i>Clear Filters
                             </a>
                         </div>
@@ -267,61 +222,38 @@ include 'includes/header.php';
         <!-- Products Grid -->
         <div class="col-md-9">
             <?php if (isset($result) && mysqli_num_rows($result) > 0): ?>
-            <div class="row" id="productsGrid">
+            <div class="row">
                     <?php while ($product = mysqli_fetch_assoc($result)): ?>
-                        <div class="col-md-4 mb-4 product-item" 
-                             data-price="<?php echo $product['price']; ?>"
-                             data-rating="<?php echo $product['avg_rating']; ?>">
-                            <div class="card h-100 fade-in">
-                                <div class="position-relative">
-                                    <?php if ($product['primary_image']): ?>
-                                        <img src="<?php echo htmlspecialchars($product['primary_image']); ?>" 
-                                             class="card-img-top" 
-                                             alt="<?php echo htmlspecialchars($product['name']); ?>"
-                                             style="height: 200px; object-fit: cover;">
-                                    <?php else: ?>
-                                        <div class="d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
-                                            <span class="text-muted">No image available</span>
-                                        </div>
-                                    <?php endif; ?>
-                                    <?php if (isLoggedIn()): ?>
-                                        <button class="btn btn-sm btn-outline-primary position-absolute top-0 start-0 m-2 add-to-wishlist"
-                                                data-product-id="<?php echo $product['id']; ?>"
-                                                title="Add to Wishlist">
-                                            <i class="fas fa-heart"></i>
-                                        </button>
-                                    <?php endif; ?>
-                                </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <?php if ($product['primary_image']): ?>
+                                    <img src="<?php echo htmlspecialchars($product['primary_image']); ?>" 
+                                         class="card-img-top" 
+                                         alt="<?php echo htmlspecialchars($product['name']); ?>"
+                                         style="height: 200px; object-fit: cover;">
+                                <?php else: ?>
+                                    <div class="d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+                                        <span class="text-muted">No image available</span>
+                                    </div>
+                                <?php endif; ?>
                                 <div class="card-body">
                                     <h5 class="card-title"><?php echo htmlspecialchars($product['name']); ?></h5>
-                                    
-                                    <!-- Rating -->
-                                    <div class="mb-2">
-                                        <?php for ($i = 1; $i <= 5; $i++): ?>
-                                            <i class="fas fa-star <?php echo $i <= $product['avg_rating'] ? 'text-warning' : 'text-muted'; ?>"></i>
-                                        <?php endfor; ?>
-                                        <span class="text-muted small">(<?php echo $product['review_count']; ?> reviews)</span>
-                                    </div>
-
-                                    <!-- Price -->
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <span class="fw-bold">$<?php echo number_format($product['price'], 2); ?></span>
-                                        </div>
-                                        <span class="badge bg-<?php echo $product['stock_quantity'] > 0 ? 'success' : 'danger'; ?>">
-                                            <?php echo $product['stock_quantity'] > 0 ? 'In Stock' : 'Out of Stock'; ?>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="card-footer bg-white border-top-0">
+                                    <p class="card-text text-primary fw-bold">$<?php echo number_format($product['price'], 2); ?></p>
+                                    <p class="card-text">
+                                        <small class="text-muted">Category: <?php echo htmlspecialchars($product['category_name']); ?></small>
+                                    </p>
                                     <div class="d-grid gap-2">
-                                        <a href="product.php?id=<?php echo $product['id']; ?>" class="btn btn-outline-primary">View Details</a>
+                                        <a href="/E-commerce_Belingheri_Barlascini/pages/product.php?id=<?php echo $product['id']; ?>" class="btn btn-outline-primary">View Details</a>
                                         <?php if ($product['stock_quantity'] > 0): ?>
-                                            <form action="add_to_cart.php" method="POST" class="d-grid">
+                                            <form action="/E-commerce_Belingheri_Barlascini/cart.php" method="POST">
                                                 <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
                                                 <input type="hidden" name="quantity" value="1">
-                                                <button type="submit" class="btn btn-primary">Add to Cart</button>
+                                                <button type="submit" name="add_to_cart" class="btn btn-primary w-100">
+                                                    <i class="fas fa-shopping-cart me-2"></i>Add to Cart
+                                                </button>
                                             </form>
+                                        <?php else: ?>
+                                            <button class="btn btn-secondary w-100" disabled>Out of Stock</button>
                                         <?php endif; ?>
                                     </div>
                                 </div>
@@ -330,10 +262,11 @@ include 'includes/header.php';
                     <?php endwhile; ?>
                 </div>
                 <?php else: ?>
-                <div class="alert alert-info fade-in">
-                    <i class="fas fa-info-circle me-2"></i>
-                            No products found matching your criteria.
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        No products found matching your criteria.
                     </div>
+                </div>
                 <?php endif; ?>
         </div>
     </div>
@@ -341,31 +274,6 @@ include 'includes/header.php';
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Add to wishlist functionality
-    const wishlistButtons = document.querySelectorAll('.add-to-wishlist');
-    wishlistButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const productId = this.dataset.productId;
-            fetch('add_to_wishlist.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `product_id=${productId}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    this.classList.remove('btn-outline-primary');
-                    this.classList.add('btn-danger');
-                    this.innerHTML = '<i class="fas fa-heart"></i>';
-                } else {
-                    alert(data.message || 'Failed to add to wishlist.');
-                }
-            });
-        });
-    });
-
     // Price range validation
     const minPriceInput = document.querySelector('input[name="min_price"]');
     const maxPriceInput = document.querySelector('input[name="max_price"]');
@@ -395,11 +303,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php 
-// Check if footer file exists
-if (!file_exists('includes/footer.php')) {
-    die("Error: footer.php file not found");
-}
-
-include 'includes/footer.php'; 
-?> 
+<?php include __DIR__ . '/includes/components/footer.php'; ?> 

@@ -1,6 +1,6 @@
 <?php
-require_once "config/database.php";
-require_once "config/session.php";
+require_once __DIR__ . "/includes/config/database.php";
+require_once __DIR__ . "/includes/config/session.php";
 
 $success_message = '';
 $error_message = '';
@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Include header
-include 'includes/header.php';
+include __DIR__ . '/includes/components/header.php';
 ?>
 
 <!-- Contact Section -->
@@ -55,8 +55,8 @@ include 'includes/header.php';
                         <div class="ms-3">
                             <h3 class="h6 fw-bold mb-2">Address</h3>
                             <p class="text-secondary mb-0">
-                                123 E-commerce Street<br>
-                                Digital City, DC 12345<br>
+                                123 Pool Street<br>
+                                Water City, WC 12345<br>
                                 United States
                             </p>
                         </div>
@@ -83,7 +83,7 @@ include 'includes/header.php';
                         <div class="ms-3">
                             <h3 class="h6 fw-bold mb-2">Email</h3>
                             <p class="text-secondary mb-0">
-                                <a href="mailto:info@example.com" class="text-decoration-none">info@example.com</a>
+                                <a href="mailto:info@premiumpoolshop.com" class="text-decoration-none">info@premiumpoolshop.com</a>
                             </p>
                         </div>
                     </div>
@@ -191,4 +191,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php include 'includes/footer.php'; ?> 
+<?php include __DIR__ . '/includes/components/footer.php'; ?> 
