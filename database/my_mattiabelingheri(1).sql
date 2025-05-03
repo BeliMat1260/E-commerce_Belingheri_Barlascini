@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Mag 02, 2025 alle 20:41
+-- Creato il: Mag 03, 2025 alle 12:09
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -106,7 +106,9 @@ CREATE TABLE `orders` (
 INSERT INTO `orders` (`id`, `user_id`, `total_amount`, `status`, `shipping_address`, `billing_address`, `payment_method`, `notes`, `created_at`, `updated_at`) VALUES
 (1, 1, 64.95, 'cancelled', 'Mkmfqwefrwqeg3erq', 'etrherwthrwth', 'credit_card', '', '2025-04-26 08:38:13', '2025-04-26 10:04:47'),
 (2, 1, 19.99, 'cancelled', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'credit_card', '', '2025-04-26 10:49:25', '2025-04-26 10:51:51'),
-(3, 1, 49.99, 'pending', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'credit_card', '', '2025-04-26 10:49:53', '2025-04-26 10:49:53');
+(3, 1, 49.99, 'pending', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'credit_card', '', '2025-04-26 10:49:53', '2025-04-26 10:49:53'),
+(4, 1, 12.99, 'cancelled', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'paypal', '', '2025-05-03 08:08:46', '2025-05-03 08:12:56'),
+(5, 1, 119.94, 'delivered', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'paypal', '', '2025-05-03 08:13:22', '2025-05-03 08:14:24');
 
 -- --------------------------------------------------------
 
@@ -129,7 +131,9 @@ CREATE TABLE `order_items` (
 INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `quantity`, `price`) VALUES
 (1, 1, 4, 5, 12.99),
 (2, 2, 3, 1, 19.99),
-(3, 3, 1, 1, 49.99);
+(3, 3, 1, 1, 49.99),
+(4, 4, 4, 1, 12.99),
+(5, 5, 3, 6, 19.99);
 
 -- --------------------------------------------------------
 
@@ -155,8 +159,8 @@ CREATE TABLE `products` (
 INSERT INTO `products` (`id`, `name`, `description`, `size`, `weight`, `price`, `stock_quantity`, `category_id`) VALUES
 (1, 'Professional Pool Ball Set', 'Complete set of 16 professional pool balls, including cue ball', '57.15 mm', 170.00, 49.99, 49, 1),
 (2, 'Water Exercise Ball', 'Durable water exercise ball for pool workouts', '57.15 mm', 170.00, 29.99, 30, 1),
-(3, 'Kids Pool Ball Set', 'Colorful set of 6 pool balls for children', '57.15 mm', 170.00, 19.99, 40, 1),
-(4, 'Floating Water Ball', 'Fun floating ball for pool games', '57.15 mm', 170.00, 12.99, 60, 1),
+(3, 'Kids Pool Ball Set', 'Colorful set of 6 pool balls for children', '57.15 mm', 170.00, 19.99, -6, 1),
+(4, 'Floating Water Ball', 'Fun floating ball for pool games', '57.15 mm', 170.00, 12.99, 0, 1),
 (5, 'Tournament Pool Balls', 'High-quality tournament-grade pool balls', '57.15 mm', 170.00, 79.99, 25, 1),
 (6, 'Water Polo Ball', 'Official size water polo ball', '57.15 mm', 170.00, 34.99, 20, 1);
 
@@ -182,7 +186,6 @@ CREATE TABLE `product_images` (
   `id` int(11) NOT NULL,
   `product_id` int(11) NOT NULL,
   `image_url` varchar(255) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `image_order` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -190,13 +193,13 @@ CREATE TABLE `product_images` (
 -- Dump dei dati per la tabella `product_images`
 --
 
-INSERT INTO `product_images` (`id`, `product_id`, `image_url`, `created_at`, `image_order`) VALUES
-(1, 1, 'assets/images/pool-balls-set.jpg', '2025-04-26 08:31:59', 1),
-(2, 2, 'assets/images/water-exercise-ball.jpg', '2025-04-26 08:31:59', 1),
-(3, 3, 'assets/images/kids-pool-balls.jpg', '2025-04-26 08:31:59', 1),
-(4, 4, 'assets/images/floating-ball.jpg', '2025-04-26 08:31:59', 1),
-(5, 5, 'assets/images/tournament-balls.jpg', '2025-04-26 08:31:59', 1),
-(6, 6, 'assets/images/water-polo-ball.jpg', '2025-04-26 08:31:59', 1);
+INSERT INTO `product_images` (`id`, `product_id`, `image_url`, `image_order`) VALUES
+(1, 1, 'assets/images/pool-balls-set.jpg', 1),
+(2, 2, 'assets/images/water-exercise-ball.jpg', 1),
+(3, 3, 'assets/images/kids-pool-balls.jpg', 1),
+(4, 4, 'assets/images/floating-ball.jpg', 1),
+(5, 5, 'assets/images/tournament-balls.jpg', 1),
+(6, 6, 'assets/images/water-polo-ball.jpg', 1);
 
 -- --------------------------------------------------------
 
@@ -236,13 +239,6 @@ CREATE TABLE `wishlist` (
   `user_id` int(11) NOT NULL,
   `product_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dump dei dati per la tabella `wishlist`
---
-
-INSERT INTO `wishlist` (`id`, `user_id`, `product_id`) VALUES
-(3, 1, 2);
 
 --
 -- Indici per le tabelle scaricate
@@ -337,7 +333,7 @@ ALTER TABLE `addresses`
 -- AUTO_INCREMENT per la tabella `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT per la tabella `categories`
@@ -349,13 +345,13 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT per la tabella `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT per la tabella `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT per la tabella `products`
