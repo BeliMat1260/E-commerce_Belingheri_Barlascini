@@ -53,34 +53,17 @@ include __DIR__ . '/../includes/components/header.php';
 <div class="container py-5">
     <div class="row">
         <!-- Product Images -->
-        <div class="col-md-6">
-            <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
-                <div class="carousel-inner">
-                    <?php 
-                    $first = true;
-                    foreach ($images as $image): 
-                    ?>
-                        <div class="carousel-item <?php echo $first ? 'active' : ''; ?>">
-                            <img src="<?php echo htmlspecialchars($image['image_url']); ?>" 
-                                 class="d-block w-100" 
-                                 alt="<?php echo htmlspecialchars($product['name']); ?>">
-                        </div>
-                    <?php 
-                    $first = false;
-                    endforeach; 
-                    ?>
+        <div class="col-md-6 d-flex align-items-center justify-content-center">
+            <?php if (!empty($images)): ?>
+                <img src="/<?php echo htmlspecialchars($images[0]['image_url']); ?>"
+                     class="img-fluid"
+                     alt="<?php echo htmlspecialchars($product['name']); ?>"
+                     style="max-height: 400px; object-fit: contain;">
+            <?php else: ?>
+                <div class="d-flex align-items-center justify-content-center bg-light" style="height: 400px; width: 100%;">
+                    <span class="text-muted">No image available</span>
                 </div>
-                <?php if (count($images) > 1): ?>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Previous</span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Next</span>
-                    </button>
-                <?php endif; ?>
-            </div>
+            <?php endif; ?>
         </div>
 
         <!-- Product Info -->

@@ -21,11 +21,6 @@
                             </a>
                         </li>
                         <li class="mb-2">
-                            <a href="/E-commerce_Belingheri_Barlascini/products.php?category=pool_tables" class="text-light text-decoration-none">
-                                <i class="fas fa-chevron-right me-2"></i>Pool Tables
-                            </a>
-                        </li>
-                        <li class="mb-2">
                             <a href="/E-commerce_Belingheri_Barlascini/products.php?category=water_bottles" class="text-light text-decoration-none">
                                 <i class="fas fa-chevron-right me-2"></i>Water Bottles
                             </a>
@@ -66,8 +61,8 @@
                     <p class="mb-0">&copy; 2024 Premium Pool Shop. All rights reserved.</p>
                 </div>
                 <div class="col-md-6 text-center text-md-end">
-                    <a href="/E-commerce_Belingheri_Barlascini/pages/privacy.php" class="text-light text-decoration-none me-3">Privacy Policy</a>
-                    <a href="/E-commerce_Belingheri_Barlascini/pages/terms.php" class="text-light text-decoration-none">Terms of Service</a>
+                    <span class="text-light text-decoration-none me-3" style="cursor: not-allowed; opacity: 0.7;">Privacy Policy</span>
+                    <span class="text-light text-decoration-none" style="cursor: not-allowed; opacity: 0.7;">Terms of Service</span>
                 </div>
             </div>
         </div>

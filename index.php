@@ -23,10 +23,10 @@ include __DIR__ . '/includes/components/header.php';
 <!-- Featured Categories -->
 <div class="container py-5">
     <h2 class="text-center mb-4">Featured Categories</h2>
-    <div class="row">
+    <div class="row justify-content-center">
         <div class="col-md-4 mb-4">
             <div class="card h-100">
-                <img src="assets/images/categories/pool-balls.jpg" class="card-img-top" alt="Pool Balls">
+                <img src="assets/images/homepage/pool-balls.jpg" class="card-img-top" alt="Pool Balls">
                 <div class="card-body">
                     <h5 class="card-title">Pool Balls</h5>
                     <p class="card-text">High-quality pool balls for professional and casual players.</p>
@@ -36,17 +36,7 @@ include __DIR__ . '/includes/components/header.php';
         </div>
         <div class="col-md-4 mb-4">
             <div class="card h-100">
-                <img src="assets/images/categories/pool-tables.jpg" class="card-img-top" alt="Pool Tables">
-                <div class="card-body">
-                    <h5 class="card-title">Pool Tables</h5>
-                    <p class="card-text">Professional-grade pool tables for your home or business.</p>
-                    <a href="products.php?category=pool_tables" class="btn btn-outline-primary">View Products</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                <img src="assets/images/categories/water-bottles.jpg" class="card-img-top" alt="Water Bottles">
+                <img src="assets/images/homepage/water-bottles.jpg" class="card-img-top" alt="Water Bottles">
                 <div class="card-body">
                     <h5 class="card-title">Water Bottles</h5>
                     <p class="card-text">Premium water bottles for your hydration needs.</p>
