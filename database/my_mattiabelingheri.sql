@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Mag 03, 2025 alle 12:09
+-- Creato il: Mag 04, 2025 alle 15:32
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -45,7 +45,7 @@ CREATE TABLE `addresses` (
 --
 
 INSERT INTO `addresses` (`id`, `user_id`, `address_name`, `address_line1`, `address_line2`, `city`, `state`, `postal_code`, `country`, `is_default`) VALUES
-(1, 1, 'ejhty', 'Dwerfve', 'vewrverw', 'htreh', 'verv', 'jyturjtrj', 'Canada', 1);
+(1, 1, 'ejhty', 'Dwerfve', 'vewrv', 'htreh', 'verv', 'jyturjtrj', 'Canada', 1);
 
 -- --------------------------------------------------------
 
@@ -108,7 +108,8 @@ INSERT INTO `orders` (`id`, `user_id`, `total_amount`, `status`, `shipping_addre
 (2, 1, 19.99, 'cancelled', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'credit_card', '', '2025-04-26 10:49:25', '2025-04-26 10:51:51'),
 (3, 1, 49.99, 'pending', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'credit_card', '', '2025-04-26 10:49:53', '2025-04-26 10:49:53'),
 (4, 1, 12.99, 'cancelled', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'paypal', '', '2025-05-03 08:08:46', '2025-05-03 08:12:56'),
-(5, 1, 119.94, 'delivered', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'paypal', '', '2025-05-03 08:13:22', '2025-05-03 08:14:24');
+(5, 1, 119.94, 'delivered', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'paypal', '', '2025-05-03 08:13:22', '2025-05-03 08:14:24'),
+(6, 1, 249.95, 'cancelled', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'paypal', '', '2025-05-03 12:49:01', '2025-05-03 13:07:56');
 
 -- --------------------------------------------------------
 
@@ -133,7 +134,8 @@ INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `quantity`, `price`) 
 (2, 2, 3, 1, 19.99),
 (3, 3, 1, 1, 49.99),
 (4, 4, 4, 1, 12.99),
-(5, 5, 3, 6, 19.99);
+(5, 5, 3, 6, 19.99),
+(6, 6, 1, 5, 49.99);
 
 -- --------------------------------------------------------
 
@@ -157,7 +159,7 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`id`, `name`, `description`, `size`, `weight`, `price`, `stock_quantity`, `category_id`) VALUES
-(1, 'Professional Pool Ball Set', 'Complete set of 16 professional pool balls, including cue ball', '57.15 mm', 170.00, 49.99, 49, 1),
+(1, 'Professional Pool Ball Set', 'Complete set of 16 professional pool balls, including cue ball', '57.15 mm', 170.00, 49.99, 0, 1),
 (2, 'Water Exercise Ball', 'Durable water exercise ball for pool workouts', '57.15 mm', 170.00, 29.99, 30, 1),
 (3, 'Kids Pool Ball Set', 'Colorful set of 6 pool balls for children', '57.15 mm', 170.00, 19.99, -6, 1),
 (4, 'Floating Water Ball', 'Fun floating ball for pool games', '57.15 mm', 170.00, 12.99, 0, 1),
@@ -333,7 +335,7 @@ ALTER TABLE `addresses`
 -- AUTO_INCREMENT per la tabella `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT per la tabella `categories`
@@ -345,13 +347,13 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT per la tabella `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT per la tabella `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT per la tabella `products`
