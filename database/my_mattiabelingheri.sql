@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Creato il: Mag 05, 2025 alle 12:15
+-- Creato il: Mag 05, 2025 alle 12:39
 -- Versione del server: 10.4.28-MariaDB
 -- Versione PHP: 8.2.4
 
@@ -61,6 +61,13 @@ CREATE TABLE `cart` (
   `product_id` int(11) NOT NULL,
   `quantity` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dump dei dati per la tabella `cart`
+--
+
+INSERT INTO `cart` (`id`, `user_id`, `product_id`, `quantity`) VALUES
+(14, 2, 2, 1);
 
 -- --------------------------------------------------------
 
@@ -257,7 +264,6 @@ CREATE TABLE `wishlist` (
 --
 ALTER TABLE `addresses`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unique_default_address` (`user_id`,`is_default`),
   ADD KEY `idx_user_id` (`user_id`),
   ADD KEY `idx_is_default` (`is_default`);
 
@@ -341,7 +347,7 @@ ALTER TABLE `addresses`
 -- AUTO_INCREMENT per la tabella `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT per la tabella `categories`
