@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Creato il: Mag 05, 2025 alle 12:39
+-- Creato il: Mag 05, 2025 alle 12:46
 -- Versione del server: 10.4.28-MariaDB
 -- Versione PHP: 8.2.4
 
@@ -46,8 +46,7 @@ CREATE TABLE `addresses` (
 
 INSERT INTO `addresses` (`id`, `user_id`, `address_name`, `address_line1`, `address_line2`, `city`, `state`, `postal_code`, `country`, `is_default`) VALUES
 (1, 1, 'ejhty', 'Dwerfve', 'vewrv', 'htreh', 'verv', 'jyturjtrj', 'Canada', 1),
-(11, 2, 'asf', 'asf', 'asfasfaf', 'asf', 'asf', 'asf', 'afs', 1),
-(12, 2, 'niggatest', 'niggatest', 'niggatest', 'niggatest', 'niggatest', '23017', 'niggatest', 0);
+(11, 2, 'asf', 'asf', 'asfasfaf', 'asf', 'asf', 'asf', 'afs', 1);
 
 -- --------------------------------------------------------
 
@@ -67,7 +66,8 @@ CREATE TABLE `cart` (
 --
 
 INSERT INTO `cart` (`id`, `user_id`, `product_id`, `quantity`) VALUES
-(14, 2, 2, 1);
+(15, 2, 2, 1),
+(16, 2, 7, 1);
 
 -- --------------------------------------------------------
 
@@ -347,7 +347,7 @@ ALTER TABLE `addresses`
 -- AUTO_INCREMENT per la tabella `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT per la tabella `categories`

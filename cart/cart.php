@@ -156,12 +156,12 @@ include __DIR__ . '/../includes/components/header.php';
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <?php if ($item['product_image']): ?>
-                                            <img src="<?php echo htmlspecialchars($item['product_image']); ?>" 
-                                                 alt="<?php echo htmlspecialchars($item['name']); ?>" 
-                                                 class="img-thumbnail" 
+                                            <img src="/E-commerce_Belingheri_Barlascini/<?php echo htmlspecialchars($item['product_image']); ?>"
+                                                 alt="<?php echo htmlspecialchars($item['name']); ?>"
+                                                 class="img-thumbnail"
                                                  style="width: 80px; height: 80px; object-fit: cover;">
                                         <?php else: ?>
-                                            <div class="bg-light d-flex align-items-center justify-content-center" 
+                                            <div class="bg-light d-flex align-items-center justify-content-center"
                                                  style="width: 80px; height: 80px;">
                                                 <span class="text-muted small">No image</span>
                                             </div>
