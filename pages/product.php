@@ -132,22 +132,30 @@ include __DIR__ . '/../includes/components/header.php';
             </div>
 
             <?php if ($product['stock_quantity'] > 0): ?>
-                <form action="cart.php" method="POST" class="mb-4">
-                    <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <label for="quantity" class="form-label">Quantity:</label>
-                            <input type="number" class="form-control" id="quantity" name="quantity" 
-                                   value="1" min="1" max="<?php echo $product['stock_quantity']; ?>" 
-                                   style="width: 80px;">
+                <?php if (isLoggedIn()): ?>
+                    <form action="/E-commerce_Belingheri_Barlascini/cart/add_to_cart.php" method="POST" class="mb-4">
+                        <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <label for="quantity" class="form-label">Quantity:</label>
+                                <input type="number" class="form-control" id="quantity" name="quantity" 
+                                       value="1" min="1" max="<?php echo $product['stock_quantity']; ?>" 
+                                       style="width: 80px;">
+                            </div>
+                            <div class="col">
+                                <button type="submit" name="add_to_cart" class="btn btn-primary">
+                                    <i class="fas fa-shopping-cart me-2"></i>Add to Cart
+                                </button>
+                            </div>
                         </div>
-                        <div class="col">
-                            <button type="submit" name="add_to_cart" class="btn btn-primary">
-                                <i class="fas fa-shopping-cart me-2"></i>Add to Cart
-                            </button>
-                        </div>
+                    </form>
+                <?php else: ?>
+                    <div class="mb-4">
+                        <a href="/E-commerce_Belingheri_Barlascini/auth/login.php" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login to Add to Cart
+                        </a>
                     </div>
-                </form>
+                <?php endif; ?>
             <?php endif; ?>
         </div>
     </div>

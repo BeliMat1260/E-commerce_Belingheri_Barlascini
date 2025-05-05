@@ -30,7 +30,6 @@ include __DIR__ . '/includes/components/header.php';
                 <div class="card-body">
                     <h5 class="card-title">Pool Balls</h5>
                     <p class="card-text">High-quality pool balls for professional and casual players.</p>
-                    <a href="products.php?category=pool_balls" class="btn btn-outline-primary">View Products</a>
                 </div>
             </div>
         </div>
@@ -40,11 +39,15 @@ include __DIR__ . '/includes/components/header.php';
                 <div class="card-body">
                     <h5 class="card-title">Water Bottles</h5>
                     <p class="card-text">Premium water bottles for your hydration needs.</p>
-                    <a href="products.php?category=water_bottles" class="btn btn-outline-primary">View Products</a>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<!-- View Products Button Section -->
+<div class="container pt-0 pb-5 text-center">
+    <a href="products.php" class="btn btn-primary btn-lg w-100">View Products</a>
 </div>
 
 <!-- Why Choose Us -->

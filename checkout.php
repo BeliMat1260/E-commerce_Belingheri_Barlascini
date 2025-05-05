@@ -84,8 +84,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 mysqli_stmt_bind_param($stmt, "iiid", $order_id, $item['product_id'], $item['quantity'], $price);
                 mysqli_stmt_execute($stmt);
                 
+                // Get current stock quantity
+                $get_stock_sql = "SELECT stock_quantity FROM products WHERE id = ?";
+                $get_stock_stmt = mysqli_prepare($conn, $get_stock_sql);
+                mysqli_stmt_bind_param($get_stock_stmt, "i", $item['product_id']);
+                mysqli_stmt_execute($get_stock_stmt);
+                $stock_result = mysqli_stmt_get_result($get_stock_stmt);
+                $current_stock = mysqli_fetch_assoc($stock_result)['stock_quantity'];
+                
                 // Update stock
-                $new_stock = $item['stock_quantity'] - $item['quantity'];
+                $new_stock = $current_stock - $item['quantity'];
                 $update_stock_sql = "UPDATE products SET stock_quantity = ? WHERE id = ?";
                 $update_stock_stmt = mysqli_prepare($conn, $update_stock_sql);
                 mysqli_stmt_bind_param($update_stock_stmt, "ii", $new_stock, $item['product_id']);

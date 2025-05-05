@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Mag 05, 2025 alle 18:09
+-- Creato il: Mag 05, 2025 alle 18:55
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -61,14 +61,6 @@ CREATE TABLE `cart` (
   `quantity` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dump dei dati per la tabella `cart`
---
-
-INSERT INTO `cart` (`id`, `user_id`, `product_id`, `quantity`) VALUES
-(15, 2, 2, 1),
-(16, 2, 7, 1);
-
 -- --------------------------------------------------------
 
 --
@@ -122,7 +114,12 @@ INSERT INTO `orders` (`id`, `user_id`, `total_amount`, `status`, `shipping_addre
 (7, 1, 19.99, 'cancelled', 'Dwerfve\r\nvewrv\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrv\r\nhtreh, verv jyturjtrj\r\nCanada', 'credit_card', '', '2025-05-05 14:10:52', '2025-05-05 14:15:34'),
 (8, 1, 29.99, 'pending', 'Dwerfve\r\nvewrv\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrv\r\nhtreh, verv jyturjtrj\r\nCanada', 'paypal', '', '2025-05-05 14:15:46', '2025-05-05 14:15:46'),
 (9, 1, 12.99, 'delivered', 'Dwerfve\r\nvewrv\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrv\r\nhtreh, verv jyturjtrj\r\nCanada', 'paypal', '', '2025-05-05 14:22:00', '2025-05-05 14:46:06'),
-(10, 1, 49.99, 'delivered', 'Dwerfve\r\nvewrv\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrv\r\nhtreh, verv jyturjtrj\r\nCanada', 'paypal', '', '2025-05-05 14:57:37', '2025-05-05 14:58:39');
+(10, 1, 49.99, 'delivered', 'Dwerfve\r\nvewrv\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrv\r\nhtreh, verv jyturjtrj\r\nCanada', 'paypal', '', '2025-05-05 14:57:37', '2025-05-05 14:58:39'),
+(11, 2, 12.99, 'cancelled', 'asf\r\nasfasfaf\r\nasf, asf asf\r\nafs', 'asf\r\nasfasfaf\r\nasf, asf asf\r\nafs', 'credit_card', 'best balls', '2025-05-05 16:19:51', '2025-05-05 16:20:22'),
+(12, 2, 12.99, 'cancelled', 'asf\r\nasfasfaf\r\nasf, asf asf\r\nafs', 'asf\r\nasfasfaf\r\nasf, asf asf\r\nafs', 'credit_card', '', '2025-05-05 16:21:48', '2025-05-05 16:22:11'),
+(13, 2, 12.99, 'cancelled', 'asf\r\nasfasfaf\r\nasf, asf asf\r\nafs', 'asf\r\nasfasfaf\r\nasf, asf asf\r\nafs', 'credit_card', '', '2025-05-05 16:22:52', '2025-05-05 16:23:04'),
+(14, 2, 12.99, 'cancelled', 'asf\r\nasfasfaf\r\nasf, asf asf\r\nafs', 'asf\r\nasfasfaf\r\nasf, asf asf\r\nafs', 'credit_card', '', '2025-05-05 16:25:01', '2025-05-05 16:25:15'),
+(15, 2, 12.99, 'delivered', 'asf\r\nasfasfaf\r\nasf, asf asf\r\nafs', 'asf\r\nasfasfaf\r\nasf, asf asf\r\nafs', 'credit_card', '', '2025-05-05 16:38:24', '2025-05-05 16:39:57');
 
 -- --------------------------------------------------------
 
@@ -152,7 +149,12 @@ INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `quantity`, `price`) 
 (7, 7, 2, 1, 19.99),
 (8, 8, 6, 1, 29.99),
 (9, 9, 7, 1, 12.99),
-(10, 10, 5, 1, 49.99);
+(10, 10, 5, 1, 49.99),
+(11, 11, 3, 1, 12.99),
+(12, 12, 3, 1, 12.99),
+(13, 13, 3, 1, 12.99),
+(14, 14, 7, 1, 12.99),
+(15, 15, 7, 1, 12.99);
 
 -- --------------------------------------------------------
 
@@ -178,7 +180,7 @@ CREATE TABLE `products` (
 INSERT INTO `products` (`id`, `name`, `description`, `size`, `weight`, `price`, `stock_quantity`, `category_id`) VALUES
 (1, 'Professional Pool Ball Set', 'Complete set of 16 professional pool balls, including cue ball', '57.15 mm', 170.00, 34.99, 0, 1),
 (2, 'Amateur Pool Ball Set', 'Amateur pool ball set for your everyday games', '57.15 mm', 170.00, 19.99, 0, 1),
-(3, 'Kids Pool Ball Set', 'Colorful set of 6 pool balls for children', '57.15 mm', 170.00, 12.99, 100, 1),
+(3, 'Kids Pool Ball Set', 'Colorful set of 6 pool balls for children', '57.15 mm', 170.00, 12.99, 0, 1),
 (4, 'World Cup Pool Ball Set', 'World Cup grade pool ball set', '57.15 mm', 170.00, 79.99, 0, 1),
 (5, 'Tournament Pool Balls', 'High-quality tournament-grade pool balls', '57.15 mm', 170.00, 49.99, 100, 1),
 (6, 'High Quality Pool Ball Set', 'High quality pool ball set to elevate your games', '57.15 mm', 170.00, 29.99, 100, 1),
@@ -355,7 +357,7 @@ ALTER TABLE `addresses`
 -- AUTO_INCREMENT per la tabella `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT per la tabella `categories`
@@ -367,13 +369,13 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT per la tabella `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT per la tabella `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT per la tabella `products`
@@ -397,7 +399,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT per la tabella `wishlist`
 --
 ALTER TABLE `wishlist`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Limiti per le tabelle scaricate
