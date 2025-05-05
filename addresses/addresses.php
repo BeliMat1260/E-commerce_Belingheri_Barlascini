@@ -76,13 +76,13 @@ include __DIR__ . '/../includes/components/header.php';
                                             <i class="fas fa-edit me-2"></i> Edit
                                         </button>
                                         <?php if (!$address['is_default']): ?>
-                                            <form action="/E-commerce_Belingheri_Barlascini/addresses/set_default_address.php" method="POST" class="d-inline">
+                                            <form action="set_default_address.php" method="POST" class="d-inline">
                                                 <input type="hidden" name="address_id" value="<?php echo $address['id']; ?>">
                                                 <button type="submit" class="btn btn-outline-success btn-sm">
                                                     <i class="fas fa-star me-2"></i> Set as Default
                                                 </button>
                                             </form>
-                                            <form action="/E-commerce_Belingheri_Barlascini/addresses/delete_address.php" method="POST" class="d-inline">
+                                            <form action="delete_address.php" method="POST" class="d-inline">
                                                 <input type="hidden" name="address_id" value="<?php echo $address['id']; ?>">
                                                 <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to delete this address?')">
                                                     <i class="fas fa-trash me-2"></i> Delete
