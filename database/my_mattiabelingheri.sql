@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Creato il: Mag 05, 2025 alle 12:46
--- Versione del server: 10.4.28-MariaDB
--- Versione PHP: 8.2.4
+-- Host: 127.0.0.1
+-- Creato il: Mag 05, 2025 alle 18:09
+-- Versione del server: 10.4.32-MariaDB
+-- Versione PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -118,7 +118,11 @@ INSERT INTO `orders` (`id`, `user_id`, `total_amount`, `status`, `shipping_addre
 (3, 1, 49.99, 'pending', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'credit_card', '', '2025-04-26 10:49:53', '2025-04-26 10:49:53'),
 (4, 1, 12.99, 'cancelled', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'paypal', '', '2025-05-03 08:08:46', '2025-05-03 08:12:56'),
 (5, 1, 119.94, 'delivered', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'paypal', '', '2025-05-03 08:13:22', '2025-05-03 08:14:24'),
-(6, 1, 249.95, 'cancelled', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'paypal', '', '2025-05-03 12:49:01', '2025-05-03 13:07:56');
+(6, 1, 249.95, 'cancelled', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrverw\r\nhtreh, verv jyturjtrj\r\nCanada', 'paypal', '', '2025-05-03 12:49:01', '2025-05-03 13:07:56'),
+(7, 1, 19.99, 'cancelled', 'Dwerfve\r\nvewrv\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrv\r\nhtreh, verv jyturjtrj\r\nCanada', 'credit_card', '', '2025-05-05 14:10:52', '2025-05-05 14:15:34'),
+(8, 1, 29.99, 'pending', 'Dwerfve\r\nvewrv\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrv\r\nhtreh, verv jyturjtrj\r\nCanada', 'paypal', '', '2025-05-05 14:15:46', '2025-05-05 14:15:46'),
+(9, 1, 12.99, 'delivered', 'Dwerfve\r\nvewrv\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrv\r\nhtreh, verv jyturjtrj\r\nCanada', 'paypal', '', '2025-05-05 14:22:00', '2025-05-05 14:46:06'),
+(10, 1, 49.99, 'delivered', 'Dwerfve\r\nvewrv\r\nhtreh, verv jyturjtrj\r\nCanada', 'Dwerfve\r\nvewrv\r\nhtreh, verv jyturjtrj\r\nCanada', 'paypal', '', '2025-05-05 14:57:37', '2025-05-05 14:58:39');
 
 -- --------------------------------------------------------
 
@@ -144,7 +148,11 @@ INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `quantity`, `price`) 
 (3, 3, 1, 1, 49.99),
 (4, 4, 4, 1, 12.99),
 (5, 5, 3, 6, 19.99),
-(6, 6, 1, 5, 49.99);
+(6, 6, 1, 5, 49.99),
+(7, 7, 2, 1, 19.99),
+(8, 8, 6, 1, 29.99),
+(9, 9, 7, 1, 12.99),
+(10, 10, 5, 1, 49.99);
 
 -- --------------------------------------------------------
 
@@ -169,11 +177,11 @@ CREATE TABLE `products` (
 
 INSERT INTO `products` (`id`, `name`, `description`, `size`, `weight`, `price`, `stock_quantity`, `category_id`) VALUES
 (1, 'Professional Pool Ball Set', 'Complete set of 16 professional pool balls, including cue ball', '57.15 mm', 170.00, 34.99, 0, 1),
-(2, 'Amateur Pool Ball Set', 'Amateur pool ball set for your everyday games', '57.15 mm', 170.00, 19.99, 30, 1),
-(3, 'Kids Pool Ball Set', 'Colorful set of 6 pool balls for children', '57.15 mm', 170.00, 12.99, -6, 1),
+(2, 'Amateur Pool Ball Set', 'Amateur pool ball set for your everyday games', '57.15 mm', 170.00, 19.99, 0, 1),
+(3, 'Kids Pool Ball Set', 'Colorful set of 6 pool balls for children', '57.15 mm', 170.00, 12.99, 100, 1),
 (4, 'World Cup Pool Ball Set', 'World Cup grade pool ball set', '57.15 mm', 170.00, 79.99, 0, 1),
-(5, 'Tournament Pool Balls', 'High-quality tournament-grade pool balls', '57.15 mm', 170.00, 49.99, 25, 1),
-(6, 'High Quality Pool Ball Set', 'High quality pool ball set to elevate your games', '57.15 mm', 170.00, 29.99, 20, 1),
+(5, 'Tournament Pool Balls', 'High-quality tournament-grade pool balls', '57.15 mm', 170.00, 49.99, 100, 1),
+(6, 'High Quality Pool Ball Set', 'High quality pool ball set to elevate your games', '57.15 mm', 170.00, 29.99, 100, 1),
 (7, 'Saratoga Bottled Water', 'A premium bottled water for your Ashton Hall like morning routine', '28 cm', 1200.00, 12.99, 100, 2);
 
 --
@@ -240,7 +248,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `email`, `password`, `first_name`, `last_name`, `address`, `city`, `state`, `country`, `phone`) VALUES
-(1, 'Belinga', 'ssssafwgfher@jnjn.bhb', '$2y$10$iIsOEfBCyDwmubsJQXoi8OOXZHSYnH8WulC.HcjAv8wue8YzxfqYC', 'Mattia', 'Belingheri', NULL, NULL, NULL, NULL, NULL),
+(1, 'Belinga', 'ssssafwgfher@jnjn.bhb', '$2y$10$iIsOEfBCyDwmubsJQXoi8OOXZHSYnH8WulC.HcjAv8wue8YzxfqYC', 'Mattia', 'Belingheri', NULL, NULL, NULL, NULL, '32142342'),
 (2, 'nigga', 'nigga@niggamail.com', '$2y$10$TiS322uyuvfMGwLJOI8GfOhXNt2jAxOxTzSKMQeiorDyc39zaV.XS', 'nigga', 'nigga', NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
@@ -347,7 +355,7 @@ ALTER TABLE `addresses`
 -- AUTO_INCREMENT per la tabella `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT per la tabella `categories`
@@ -359,13 +367,13 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT per la tabella `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT per la tabella `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT per la tabella `products`
@@ -389,7 +397,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT per la tabella `wishlist`
 --
 ALTER TABLE `wishlist`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Limiti per le tabelle scaricate
