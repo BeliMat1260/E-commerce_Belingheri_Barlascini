@@ -24,13 +24,19 @@ $in_stock = isset($_GET['in_stock']) ? true : false;
 
 // Build SQL query with proper joins and conditions
 $sql = "SELECT p.*, c.name as category_name,
-        (SELECT image_url FROM product_images WHERE product_id = p.id AND image_order = 1 LIMIT 1) as primary_image
+        (SELECT image_url FROM product_images WHERE product_id = p.id AND image_order = 1 LIMIT 1) as primary_image,
+        " . (isLoggedIn() ? "(SELECT COUNT(*) FROM wishlist WHERE user_id = ? AND product_id = p.id) as in_wishlist" : "0 as in_wishlist") . "
         FROM products p 
         LEFT JOIN categories c ON p.category_id = c.id 
         WHERE 1=1";
 
 $params = [];
 $types = "";
+
+if (isLoggedIn()) {
+    $params[] = $_SESSION['user_id'];
+    $types .= "i";
+}
 
 if ($category_id) {
     $sql .= " AND p.category_id = ?";
@@ -232,10 +238,19 @@ include __DIR__ . '/includes/components/header.php';
                         <div class="col-md-4 mb-4">
                             <div class="card h-100">
                                 <?php if ($product['primary_image']): ?>
-                                    <img src="<?php echo htmlspecialchars($product['primary_image']); ?>" 
-                                         class="card-img-top" 
-                                         alt="<?php echo htmlspecialchars($product['name']); ?>"
-                                         style="height: 200px; object-fit: cover;">
+                                    <div class="position-relative">
+                                        <img src="<?php echo htmlspecialchars($product['primary_image']); ?>" 
+                                             class="card-img-top" 
+                                             alt="<?php echo htmlspecialchars($product['name']); ?>"
+                                             style="height: 200px; object-fit: cover;">
+                                        <?php if (isLoggedIn()): ?>
+                                            <button class="btn btn-sm position-absolute top-0 end-0 m-2 wishlist-btn <?php echo $product['in_wishlist'] ? 'btn-danger' : 'btn-outline-danger'; ?>"
+                                                    data-product-id="<?php echo $product['id']; ?>"
+                                                    title="<?php echo $product['in_wishlist'] ? 'Remove from Wishlist' : 'Add to Wishlist'; ?>">
+                                                <i class="fas fa-heart"></i>
+                                            </button>
+                                        <?php endif; ?>
+                                    </div>
                                 <?php else: ?>
                                     <div class="d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
                                         <span class="text-muted">No image available</span>
@@ -311,6 +326,131 @@ document.addEventListener('DOMContentLoaded', function() {
         submitButton.disabled = true;
         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Applying Filters...';
     });
+
+    // Wishlist functionality
+    const wishlistButtons = document.querySelectorAll('.wishlist-btn');
+    
+    // Function to update heart appearance
+    function updateHeartAppearance(button, isInWishlist) {
+        if (isInWishlist) {
+            button.classList.add('btn-danger');
+            button.classList.remove('btn-outline-danger');
+            button.title = 'Remove from Wishlist';
+        } else {
+            button.classList.remove('btn-danger');
+            button.classList.add('btn-outline-danger');
+            button.title = 'Add to Wishlist';
+        }
+    }
+
+    // Add click event listeners to wishlist buttons
+    wishlistButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const productId = this.dataset.productId;
+            const isInWishlist = this.classList.contains('btn-danger');
+            const action = isInWishlist ? 'remove_from' : 'add_to';
+            
+            // Disable button during request
+            this.disabled = true;
+            
+            // Log the request details
+            console.log('Sending request to:', `/E-commerce_Belingheri_Barlascini/wishlist/${action}_wishlist.php`);
+            console.log('Product ID:', productId);
+            console.log('Action:', action);
+            
+            fetch(`/E-commerce_Belingheri_Barlascini/wishlist/${action}_wishlist.php`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `product_id=${productId}`
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.text().then(text => {
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        console.error('Error parsing JSON:', text);
+                        throw new Error('Invalid JSON response');
+                    }
+                });
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                if (data.success) {
+                    // Toggle button state
+                    updateHeartAppearance(this, !isInWishlist);
+                    
+                    // Show success message
+                    const message = isInWishlist ? 'Product removed from wishlist' : 'Product added to wishlist';
+                    const toast = document.createElement('div');
+                    toast.className = 'position-fixed bottom-0 end-0 p-3';
+                    toast.style.zIndex = '5';
+                    toast.innerHTML = `
+                        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                            <div class="toast-header">
+                                <i class="fas fa-heart me-2"></i>
+                                <strong class="me-auto">Wishlist</strong>
+                                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                            <div class="toast-body">
+                                ${message}
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(toast);
+                    
+                    // Remove toast after 3 seconds
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 3000);
+                } else {
+                    if (data.message && data.message.includes('log in')) {
+                        window.location.href = '/E-commerce_Belingheri_Barlascini/auth/login.php';
+                    } else {
+                        alert(data.message || 'An error occurred');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the wishlist. Please try again.');
+            })
+            .finally(() => {
+                // Re-enable button after request completes
+                this.disabled = false;
+            });
+        });
+    });
+
+    // Check initial wishlist status for all products
+    if (wishlistButtons.length > 0) {
+        const productIds = Array.from(wishlistButtons).map(button => button.dataset.productId);
+        
+        fetch('/E-commerce_Belingheri_Barlascini/wishlist/check_wishlist_status.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ product_ids: productIds })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update heart appearances based on wishlist status
+                wishlistButtons.forEach(button => {
+                    const productId = button.dataset.productId;
+                    const isInWishlist = data.wishlist_items.includes(parseInt(productId));
+                    updateHeartAppearance(button, isInWishlist);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error checking wishlist status:', error);
+        });
+    }
 });
 </script>
 
