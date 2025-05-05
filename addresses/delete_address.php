@@ -1,25 +1,25 @@
 <?php
-require_once "config/database.php";
-require_once "config/session.php";
+require_once __DIR__ . "/../includes/config/database.php";
+require_once __DIR__ . "/../includes/config/session.php";
 
 // Verifica se l'utente è loggato
 if (!isLoggedIn()) {
     setFlashMessage('error', 'Please log in to manage addresses.');
-    header("Location: login.php");
+    header("Location: /E-commerce_Belingheri_Barlascini/login.php");
     exit();
 }
 
 // Verifica se la richiesta è POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     setFlashMessage('error', 'Invalid request method.');
-    header("Location: addresses.php");
+    header("Location: /E-commerce_Belingheri_Barlascini/addresses/addresses.php");
     exit();
 }
 
 // Verifica se l'ID dell'indirizzo è presente
 if (!isset($_POST['address_id']) || !is_numeric($_POST['address_id'])) {
     setFlashMessage('error', 'Invalid address ID.');
-    header("Location: addresses.php");
+    header("Location: /E-commerce_Belingheri_Barlascini/addresses/addresses.php");
     exit();
 }
 
@@ -34,7 +34,7 @@ $result = mysqli_stmt_get_result($stmt);
 
 if (mysqli_num_rows($result) === 0) {
     setFlashMessage('error', 'Address not found or you do not have permission to delete it.');
-    header("Location: addresses.php");
+    header("Location: /E-commerce_Belingheri_Barlascini/addresses/addresses.php");
     exit();
 }
 
@@ -43,7 +43,7 @@ $address = mysqli_fetch_assoc($result);
 // Non permettere l'eliminazione dell'indirizzo predefinito
 if ($address['is_default']) {
     setFlashMessage('error', 'Cannot delete the default address. Please set another address as default first.');
-    header("Location: addresses.php");
+    header("Location: /E-commerce_Belingheri_Barlascini/addresses/addresses.php");
     exit();
 }
 
@@ -57,7 +57,7 @@ $count = mysqli_fetch_assoc($count_result)['total'];
 
 if ($count <= 1) {
     setFlashMessage('error', 'Cannot delete the last address. Please add another address first.');
-    header("Location: addresses.php");
+    header("Location: /E-commerce_Belingheri_Barlascini/addresses/addresses.php");
     exit();
 }
 
@@ -90,5 +90,5 @@ try {
     error_log("Address deletion error: " . $e->getMessage());
 }
 
-header("Location: addresses.php");
+header("Location: /E-commerce_Belingheri_Barlascini/addresses/addresses.php");
 exit(); 

@@ -1,18 +1,18 @@
 <?php
-require_once "config/database.php";
-require_once "config/session.php";
+require_once __DIR__ . "/../includes/config/database.php";
+require_once __DIR__ . "/../includes/config/session.php";
 
 // Verifica se l'utente è loggato
 if (!isLoggedIn()) {
     setFlashMessage('error', 'Please log in to add addresses.');
-    header("Location: login.php");
+    header("Location: /E-commerce_Belingheri_Barlascini/login.php");
     exit();
 }
 
 // Verifica se la richiesta è POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     setFlashMessage('error', 'Invalid request method.');
-    header("Location: addresses.php");
+    header("Location: /E-commerce_Belingheri_Barlascini/addresses/addresses.php");
     exit();
 }
 
@@ -21,7 +21,7 @@ $required_fields = ['address_name', 'address_line1', 'city', 'state', 'postal_co
 foreach ($required_fields as $field) {
     if (!isset($_POST[$field]) || empty(trim($_POST[$field]))) {
         setFlashMessage('error', 'All required fields must be filled.');
-        header("Location: addresses.php");
+        header("Location: /E-commerce_Belingheri_Barlascini/addresses/addresses.php");
         exit();
     }
 }
@@ -34,7 +34,7 @@ $city = trim($_POST['city']);
 $state = trim($_POST['state']);
 $postal_code = trim($_POST['postal_code']);
 $country = trim($_POST['country']);
-$is_default = isset($_POST['is_default']);
+$is_default = isset($_POST['is_default']) ? 1 : 0;
 
 // Validazione dei dati
 $errors = [];
@@ -99,7 +99,7 @@ if (!preg_match('/^[a-zA-Z\s\-]+$/', $country)) {
 
 if (!empty($errors)) {
     setFlashMessage('error', implode('<br>', $errors));
-    header("Location: addresses.php");
+    header("Location: /E-commerce_Belingheri_Barlascini/addresses/addresses.php");
     exit();
 }
 
@@ -112,7 +112,10 @@ try {
         $update_sql = "UPDATE addresses SET is_default = 0 WHERE user_id = ?";
         $stmt = mysqli_prepare($conn, $update_sql);
         mysqli_stmt_bind_param($stmt, "i", $_SESSION['user_id']);
-        mysqli_stmt_execute($stmt);
+        
+        if (!mysqli_stmt_execute($stmt)) {
+            throw new Exception("Failed to reset default addresses: " . mysqli_error($conn));
+        }
     }
 
     // Inserisci il nuovo indirizzo
@@ -146,5 +149,5 @@ try {
     error_log("Address addition error: " . $e->getMessage());
 }
 
-header("Location: addresses.php");
+header("Location: /E-commerce_Belingheri_Barlascini/addresses/addresses.php");
 exit(); 

@@ -60,11 +60,11 @@ include __DIR__ . '/../includes/components/header.php';
                 <?php if ($product['primary_image']): ?>
                     <img src="/E-commerce_Belingheri_Barlascini/<?php echo htmlspecialchars($product['primary_image']); ?>"
                          class="img-fluid rounded"
-                         alt="<?php echo htmlspecialchars($product['name']); ?>"
+                     alt="<?php echo htmlspecialchars($product['name']); ?>"
                          style="height: 400px; object-fit: contain;">
-                <?php else: ?>
+            <?php else: ?>
                     <div class="d-flex align-items-center justify-content-center bg-light rounded" style="height: 400px; width: 100%;">
-                        <span class="text-muted">No image available</span>
+                    <span class="text-muted">No image available</span>
                     </div>
                 <?php endif; ?>
             </div>
@@ -141,7 +141,7 @@ include __DIR__ . '/../includes/components/header.php';
     </div>
 </div>
 
-<?php include __DIR__ . '/../includes/components/footer.php'; ?>
+<?php include __DIR__ . '/../includes/components/footer.php'; ?> 
 
 <script>
 function changeMainImage(src) {

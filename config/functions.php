@@ -58,32 +58,6 @@ function formatPrice($price) {
 }
 
 /**
- * Get user role
- */
-function getUserRole() {
-    if (!isLoggedIn()) {
-        return null;
-    }
-    
-    global $conn;
-    $sql = "SELECT role FROM users WHERE id = ?";
-    $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "i", $_SESSION['user_id']);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-    $user = mysqli_fetch_assoc($result);
-    
-    return $user ? $user['role'] : null;
-}
-
-/**
- * Check if user is admin
- */
-function isAdmin() {
-    return getUserRole() === 'admin';
-}
-
-/**
  * Redirect with flash message
  */
 function redirectWithMessage($url, $type, $message) {

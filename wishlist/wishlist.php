@@ -89,7 +89,7 @@ include __DIR__ . '/../includes/components/header.php';
                 </div>
             <?php else: ?>
                 <div class="alert alert-info">
-                    Your wishlist is empty. <a href="products.php" class="alert-link">Browse products</a> to add items to your wishlist.
+                    Your wishlist is empty. <a href="/E-commerce_Belingheri_Barlascini/products.php" class="alert-link">Browse products</a> to add items to your wishlist.
                 </div>
             <?php endif; ?>
         </div>
