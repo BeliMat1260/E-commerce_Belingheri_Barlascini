@@ -22,7 +22,8 @@ if ($product_id <= 0) {
 }
 
 // Get product details
-$sql = "SELECT p.*, c.name as category_name 
+$sql = "SELECT p.*, c.name as category_name,
+        (SELECT image_url FROM product_images WHERE product_id = p.id AND image_order = 1 LIMIT 1) as primary_image
         FROM products p 
         LEFT JOIN categories c ON p.category_id = c.id 
         WHERE p.id = ?";
@@ -37,7 +38,7 @@ if (!$product) {
     exit();
 }
 
-// Get product images
+// Get all product images
 $images_sql = "SELECT * FROM product_images WHERE product_id = ? ORDER BY image_order";
 $images_stmt = mysqli_prepare($conn, $images_sql);
 mysqli_stmt_bind_param($images_stmt, "i", $product_id);
@@ -53,15 +54,35 @@ include __DIR__ . '/../includes/components/header.php';
 <div class="container py-5">
     <div class="row">
         <!-- Product Images -->
-        <div class="col-md-6 d-flex align-items-center justify-content-center">
-            <?php if (!empty($images)): ?>
-                <img src="/<?php echo htmlspecialchars($images[0]['image_url']); ?>"
-                     class="img-fluid"
-                     alt="<?php echo htmlspecialchars($product['name']); ?>"
-                     style="max-height: 400px; object-fit: contain;">
-            <?php else: ?>
-                <div class="d-flex align-items-center justify-content-center bg-light" style="height: 400px; width: 100%;">
-                    <span class="text-muted">No image available</span>
+        <div class="col-md-6">
+            <!-- Main Image -->
+            <div class="mb-4 d-flex justify-content-center">
+                <?php if ($product['primary_image']): ?>
+                    <img src="/E-commerce_Belingheri_Barlascini/<?php echo htmlspecialchars($product['primary_image']); ?>"
+                         class="img-fluid rounded"
+                         alt="<?php echo htmlspecialchars($product['name']); ?>"
+                         style="height: 400px; object-fit: contain;">
+                <?php else: ?>
+                    <div class="d-flex align-items-center justify-content-center bg-light rounded" style="height: 400px; width: 100%;">
+                        <span class="text-muted">No image available</span>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <!-- Thumbnails -->
+            <?php if (count($images) > 1): ?>
+                <div class="row g-2 justify-content-center">
+                    <?php foreach ($images as $image): ?>
+                        <div class="col-3">
+                            <div class="d-flex justify-content-center">
+                                <img src="/E-commerce_Belingheri_Barlascini/<?php echo htmlspecialchars($image['image_url']); ?>"
+                                     class="img-fluid rounded cursor-pointer"
+                                     alt="<?php echo htmlspecialchars($product['name']); ?> - Image <?php echo $image['image_order']; ?>"
+                                     style="height: 100px; object-fit: cover;"
+                                     onclick="changeMainImage(this.src)">
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
             <?php endif; ?>
         </div>
@@ -120,4 +141,13 @@ include __DIR__ . '/../includes/components/header.php';
     </div>
 </div>
 
-<?php include __DIR__ . '/../includes/components/footer.php'; ?> 
+<?php include __DIR__ . '/../includes/components/footer.php'; ?>
+
+<script>
+function changeMainImage(src) {
+    const mainImage = document.querySelector('.col-md-6 img.img-fluid');
+    if (mainImage) {
+        mainImage.src = src;
+    }
+}
+</script> 

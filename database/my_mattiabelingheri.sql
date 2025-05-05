@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Creato il: Mag 04, 2025 alle 15:32
--- Versione del server: 10.4.32-MariaDB
--- Versione PHP: 8.2.12
+-- Host: localhost
+-- Creato il: Mag 05, 2025 alle 09:51
+-- Versione del server: 10.4.28-MariaDB
+-- Versione PHP: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -78,7 +78,7 @@ CREATE TABLE `categories` (
 
 INSERT INTO `categories` (`id`, `name`, `description`) VALUES
 (1, 'Pool Balls', 'High-quality pool balls for professional and recreational use'),
-(2, 'Water Balls', 'Fun and colorful water balls for pool games and activities');
+(2, 'Water Bottles', 'Premium water bottles for your hydration needs.');
 
 -- --------------------------------------------------------
 
@@ -159,12 +159,13 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`id`, `name`, `description`, `size`, `weight`, `price`, `stock_quantity`, `category_id`) VALUES
-(1, 'Professional Pool Ball Set', 'Complete set of 16 professional pool balls, including cue ball', '57.15 mm', 170.00, 49.99, 0, 1),
-(2, 'Water Exercise Ball', 'Durable water exercise ball for pool workouts', '57.15 mm', 170.00, 29.99, 30, 1),
-(3, 'Kids Pool Ball Set', 'Colorful set of 6 pool balls for children', '57.15 mm', 170.00, 19.99, -6, 1),
-(4, 'Floating Water Ball', 'Fun floating ball for pool games', '57.15 mm', 170.00, 12.99, 0, 1),
-(5, 'Tournament Pool Balls', 'High-quality tournament-grade pool balls', '57.15 mm', 170.00, 79.99, 25, 1),
-(6, 'Water Polo Ball', 'Official size water polo ball', '57.15 mm', 170.00, 34.99, 20, 1);
+(1, 'Professional Pool Ball Set', 'Complete set of 16 professional pool balls, including cue ball', '57.15 mm', 170.00, 34.99, 0, 1),
+(2, 'Amateur Pool Ball Set', 'Amateur pool ball set for your everyday games', '57.15 mm', 170.00, 19.99, 30, 1),
+(3, 'Kids Pool Ball Set', 'Colorful set of 6 pool balls for children', '57.15 mm', 170.00, 12.99, -6, 1),
+(4, 'World Cup Pool Ball Set', 'World Cup grade pool ball set', '57.15 mm', 170.00, 79.99, 0, 1),
+(5, 'Tournament Pool Balls', 'High-quality tournament-grade pool balls', '57.15 mm', 170.00, 49.99, 25, 1),
+(6, 'High Quality Pool Ball Set', 'High quality pool ball set to elevate your games', '57.15 mm', 170.00, 29.99, 20, 1),
+(7, 'Saratoga Bottled Water', 'A premium bottled water for your Ashton Hall like morning routine', '28 cm', 1200.00, 12.99, 100, 2);
 
 --
 -- Trigger `products`
@@ -196,12 +197,14 @@ CREATE TABLE `product_images` (
 --
 
 INSERT INTO `product_images` (`id`, `product_id`, `image_url`, `image_order`) VALUES
-(1, 1, 'assets/images/pool-balls-set.jpg', 1),
-(2, 2, 'assets/images/water-exercise-ball.jpg', 1),
-(3, 3, 'assets/images/kids-pool-balls.jpg', 1),
-(4, 4, 'assets/images/floating-ball.jpg', 1),
-(5, 5, 'assets/images/tournament-balls.jpg', 1),
-(6, 6, 'assets/images/water-polo-ball.jpg', 1);
+(1, 1, 'assets/images/professional-pool-balls-set.jpg', 1),
+(2, 2, 'assets/images/amateur-pool-ball-set.jpg', 1),
+(3, 3, 'assets/images/kids-pool-ball-set.jpg', 1),
+(4, 4, 'assets/images/world-cup-pool-ball-set.jpg', 1),
+(5, 5, 'assets/images/tournament-pool-ball-set.jpg', 1),
+(6, 6, 'assets/images/high-quality-pool-ball-set.jpg', 1),
+(7, 7, 'assets/images/saratoga-bottled-water.jpg', 1),
+(8, 7, 'assets/images/saratoga-bottled-water2.jpg', 2);
 
 -- --------------------------------------------------------
 
@@ -359,13 +362,13 @@ ALTER TABLE `order_items`
 -- AUTO_INCREMENT per la tabella `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT per la tabella `product_images`
 --
 ALTER TABLE `product_images`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT per la tabella `users`
