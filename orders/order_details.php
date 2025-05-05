@@ -55,30 +55,7 @@ include __DIR__ . '/../includes/components/header.php';
 <div class="container py-5">
     <div class="row">
         <!-- Sidebar -->
-        <div class="col-md-3">
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">Account Menu</h5>
-                    <div class="list-group list-group-flush">
-                        <a href="account.php" class="list-group-item list-group-item-action">
-                            <i class="fas fa-user me-2"></i> Profile
-                        </a>
-                        <a href="/E-commerce_Belingheri_Barlascini/orders/orders.php" class="list-group-item list-group-item-action active">
-                            <i class="fas fa-shopping-bag me-2"></i> Orders
-                        </a>
-                        <a href="wishlist.php" class="list-group-item list-group-item-action">
-                            <i class="fas fa-heart me-2"></i> Wishlist
-                        </a>
-                        <a href="addresses.php" class="list-group-item list-group-item-action">
-                            <i class="fas fa-map-marker-alt me-2"></i> Addresses
-                        </a>
-                        <a href="/E-commerce_Belingheri_Barlascini/auth/logout.php" class="list-group-item list-group-item-action text-danger">
-                            <i class="fas fa-sign-out-alt me-2"></i> Logout
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <?php include __DIR__ . '/../includes/components/account_menu.php'; ?>
 
         <!-- Main Content -->
         <div class="col-md-9">
@@ -132,9 +109,10 @@ include __DIR__ . '/../includes/components/header.php';
                         <div class="row mb-3 pb-3 border-bottom">
                             <div class="col-md-2">
                                 <?php if ($item['product_image']): ?>
-                                    <img src="<?php echo htmlspecialchars($item['product_image']); ?>" 
-                                         class="img-fluid rounded" 
-                                         alt="<?php echo htmlspecialchars($item['name']); ?>">
+                                    <img src="/E-commerce_Belingheri_Barlascini/<?php echo htmlspecialchars($item['product_image']); ?>"
+                                         class="img-fluid rounded"
+                                         alt="<?php echo htmlspecialchars($item['name']); ?>"
+                                         style="width: 100px; height: 100px; object-fit: cover;">
                                 <?php else: ?>
                                     <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 100px;">
                                         <span class="text-muted">No image</span>

@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             setFlashMessage('success', 'Order placed successfully! Thank you for your purchase.');
             
             // Redirect to order confirmation
-            header("Location: order_confirmation.php?id=" . $order_id);
+            header("Location: /E-commerce_Belingheri_Barlascini/orders/order_confirmation.php?id=" . $order_id);
             exit();
         } catch (Exception $e) {
             // Rollback transaction

@@ -1,11 +1,12 @@
 <?php
-require_once "config/database.php";
-require_once "config/session.php";
+require_once __DIR__ . "/../includes/config/database.php";
+require_once __DIR__ . "/../includes/config/session.php";
+require_once __DIR__ . "/../includes/config/functions.php";
 
 // Verifica se l'utente è loggato
 if (!isLoggedIn()) {
     setFlashMessage('error', 'Please log in to view your order.');
-    header("Location: login.php");
+    header("Location: /E-commerce_Belingheri_Barlascini/auth/login.php");
     exit();
 }
 
@@ -26,7 +27,7 @@ $order = mysqli_fetch_assoc($order_result);
 // Redirect if order not found or doesn't belong to user
 if (!$order) {
     setFlashMessage('error', 'Order not found.');
-    header("Location: orders.php");
+    header("Location: /E-commerce_Belingheri_Barlascini/orders/orders.php");
     exit();
 }
 
@@ -42,7 +43,7 @@ mysqli_stmt_execute($items_stmt);
 $items_result = mysqli_stmt_get_result($items_stmt);
 
 // Include header
-include 'includes/header.php';
+include __DIR__ . '/../includes/components/header.php';
 ?>
 
 <!-- Order Confirmation Section -->
@@ -102,14 +103,16 @@ include 'includes/header.php';
                                 <?php while ($item = mysqli_fetch_assoc($items_result)): ?>
                                     <tr>
                                         <td>
-                                            <div class="d-flex align-items-center">
+                                            <div class="d-flex align-items-center" style="min-width: 150px;">
                                                 <?php if ($item['product_image']): ?>
-                                                    <img src="<?php echo htmlspecialchars($item['product_image']); ?>" 
-                                                         alt="<?php echo htmlspecialchars($item['name']); ?>" 
-                                                         class="img-thumbnail me-3" 
-                                                         style="width: 50px; height: 50px; object-fit: cover;">
+                                                    <img src="/E-commerce_Belingheri_Barlascini/<?php echo htmlspecialchars($item['product_image']); ?>"
+                                                         alt="<?php echo htmlspecialchars($item['name']); ?>"
+                                                         class="img-thumbnail"
+                                                         style="width: 50px; height: 50px; object-fit: cover; min-width: 50px;">
                                                 <?php endif; ?>
-                                                <?php echo htmlspecialchars($item['name']); ?>
+                                                <span class="ms-2 text-truncate" style="max-width: 200px; display: inline-block; vertical-align: middle;">
+                                                    <?php echo htmlspecialchars($item['name']); ?>
+                                                </span>
                                             </div>
                                         </td>
                                         <td>$<?php echo number_format($item['price'], 2); ?></td>
@@ -144,10 +147,10 @@ include 'includes/header.php';
 
             <!-- Action Buttons -->
             <div class="d-flex justify-content-between mt-4">
-                <a href="products.php" class="btn btn-outline-primary">
+                <a href="/E-commerce_Belingheri_Barlascini/products.php" class="btn btn-outline-primary">
                     <i class="fas fa-shopping-cart me-2"></i>Continue Shopping
                 </a>
-                <a href="orders.php" class="btn btn-primary">
+                <a href="/E-commerce_Belingheri_Barlascini/orders/orders.php" class="btn btn-primary">
                     <i class="fas fa-list me-2"></i>View All Orders
                 </a>
             </div>
@@ -155,7 +158,7 @@ include 'includes/header.php';
     </div>
 </div>
 
-<?php include 'includes/footer.php'; ?>
+<?php include __DIR__ . '/../includes/components/footer.php'; ?>
 
 <script>
 let deliveryTimer;
@@ -171,7 +174,7 @@ function updateDeliveryStatus() {
         timeLeft--;
     } else {
         clearInterval(deliveryTimer);
-        fetch(`update_order_status.php?order_id=<?php echo $order['id']; ?>`)
+        fetch(`/E-commerce_Belingheri_Barlascini/orders/update_order_status.php?order_id=<?php echo $order['id']; ?>`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -179,9 +182,14 @@ function updateDeliveryStatus() {
                     statusText.textContent = 'Delivered';
                     progressBar.classList.remove('progress-bar-animated');
                     progressBar.classList.add('bg-success');
+                } else {
+                    console.error('Error updating order status:', data.message);
                 }
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('Error:', error);
+                statusText.textContent = 'Error updating status';
+            });
     }
 }
 
@@ -190,6 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
     statusText = document.getElementById('status-text');
     
     if (statusText.textContent.toLowerCase() !== 'delivered') {
+        progressBar.style.width = '0%';
         deliveryTimer = setInterval(updateDeliveryStatus, 1000);
     } else {
         progressBar.style.width = '100%';
