@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Creato il: Mag 05, 2025 alle 09:51
+-- Creato il: Mag 05, 2025 alle 12:15
 -- Versione del server: 10.4.28-MariaDB
 -- Versione PHP: 8.2.4
 
@@ -45,7 +45,9 @@ CREATE TABLE `addresses` (
 --
 
 INSERT INTO `addresses` (`id`, `user_id`, `address_name`, `address_line1`, `address_line2`, `city`, `state`, `postal_code`, `country`, `is_default`) VALUES
-(1, 1, 'ejhty', 'Dwerfve', 'vewrv', 'htreh', 'verv', 'jyturjtrj', 'Canada', 1);
+(1, 1, 'ejhty', 'Dwerfve', 'vewrv', 'htreh', 'verv', 'jyturjtrj', 'Canada', 1),
+(11, 2, 'asf', 'asf', 'asfasfaf', 'asf', 'asf', 'asf', 'afs', 1),
+(12, 2, 'niggatest', 'niggatest', 'niggatest', 'niggatest', 'niggatest', '23017', 'niggatest', 0);
 
 -- --------------------------------------------------------
 
@@ -231,7 +233,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `email`, `password`, `first_name`, `last_name`, `address`, `city`, `state`, `country`, `phone`) VALUES
-(1, 'Belinga', 'ssssafwgfher@jnjn.bhb', '$2y$10$iIsOEfBCyDwmubsJQXoi8OOXZHSYnH8WulC.HcjAv8wue8YzxfqYC', 'Mattia', 'Belingheri', NULL, NULL, NULL, NULL, NULL);
+(1, 'Belinga', 'ssssafwgfher@jnjn.bhb', '$2y$10$iIsOEfBCyDwmubsJQXoi8OOXZHSYnH8WulC.HcjAv8wue8YzxfqYC', 'Mattia', 'Belingheri', NULL, NULL, NULL, NULL, NULL),
+(2, 'nigga', 'nigga@niggamail.com', '$2y$10$TiS322uyuvfMGwLJOI8GfOhXNt2jAxOxTzSKMQeiorDyc39zaV.XS', 'nigga', 'nigga', NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -332,7 +335,7 @@ ALTER TABLE `wishlist`
 -- AUTO_INCREMENT per la tabella `addresses`
 --
 ALTER TABLE `addresses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT per la tabella `cart`
@@ -374,7 +377,7 @@ ALTER TABLE `product_images`
 -- AUTO_INCREMENT per la tabella `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT per la tabella `wishlist`
