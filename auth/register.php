@@ -170,7 +170,7 @@ include __DIR__ . '/../includes/components/header.php';
                     
                     <div class="text-center mt-4">
                         <p class="mb-0">Already have an account? 
-                            <a href="/E-commerce_Belingheri_Barlascini/auth/login.php" class="text-primary fw-medium">Sign in here</a>
+                            <a href="<?php echo BASE_URL; ?>/auth/login.php" class="text-primary fw-medium">Sign in here</a>
                         </p>
                     </div>
                 </div>

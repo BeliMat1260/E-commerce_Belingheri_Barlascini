@@ -12,10 +12,10 @@ include __DIR__ . '/includes/components/header.php';
         <div class="col-md-6">
             <h1 class="display-4 fw-bold mb-4">Welcome to Premium Pool Shop</h1>
             <p class="lead mb-4">Your one-stop destination for premium pool equipment and high-quality water bottles.</p>
-            <a href="products.php" class="btn btn-primary btn-lg">Shop Now</a>
+            <a href="<?php echo htmlspecialchars(url('products.php')); ?>" class="btn btn-primary btn-lg">Shop Now</a>
         </div>
         <div class="col-md-6">
-            <img src="assets/images/hero.jpg" alt="Premium Pool Shop" class="img-fluid rounded shadow-lg">
+            <img src="<?php echo htmlspecialchars(url('assets/images/homepage/pool-balls.jpg')); ?>" alt="Premium Pool Shop" class="img-fluid rounded shadow-lg">
         </div>
     </div>
 </div>
@@ -25,6 +25,7 @@ include __DIR__ . '/includes/components/header.php';
     <h2 class="text-center mb-4">Featured Categories</h2>
     <div class="row justify-content-center">
         <div class="col-md-4 mb-4">
+            <a href="<?php echo htmlspecialchars(url('products.php?category_id=1')); ?>" class="text-decoration-none text-dark">
             <div class="card h-100">
                 <img src="assets/images/homepage/pool-balls.jpg" class="card-img-top" alt="Pool Balls">
                 <div class="card-body">
@@ -32,8 +33,10 @@ include __DIR__ . '/includes/components/header.php';
                     <p class="card-text">High-quality pool balls for professional and casual players.</p>
                 </div>
             </div>
+            </a>
         </div>
         <div class="col-md-4 mb-4">
+            <a href="<?php echo htmlspecialchars(url('products.php?category_id=2')); ?>" class="text-decoration-none text-dark">
             <div class="card h-100">
                 <img src="assets/images/homepage/water-bottles.jpg" class="card-img-top" alt="Water Bottles">
                 <div class="card-body">
@@ -41,13 +44,14 @@ include __DIR__ . '/includes/components/header.php';
                     <p class="card-text">Premium water bottles for your hydration needs.</p>
                 </div>
             </div>
+            </a>
         </div>
     </div>
 </div>
 
 <!-- View Products Button Section -->
 <div class="container pt-0 pb-5 text-center">
-    <a href="products.php" class="btn btn-primary btn-lg w-100">View Products</a>
+    <a href="<?php echo htmlspecialchars(url('products.php')); ?>" class="btn btn-primary btn-lg w-100">View Products</a>
 </div>
 
 <!-- Why Choose Us -->

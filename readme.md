@@ -46,15 +46,13 @@ E-commerce_Belingheri_Barlascini-main/
 Per eseguire questo progetto sul tuo ambiente locale, segui questi passaggi:
 
 1. **Requisiti di Sistema:** Assicurati di avere un server web locale con supporto PHP e MySQL (es. XAMPP, MAMP, LAMP).
-2. **Clona/Estrai il Progetto:** Posiziona l'intera cartella all'interno della directory root del tuo server web (es. `htdocs` per XAMPP).
+2. **Clona/Estrai il Progetto:** Posiziona la cartella dentro la document root del server web (es. `htdocs` per XAMPP). Il nome della cartella può essere qualsiasi: i link usano `BASE_URL`, calcolato da `includes/config/session.php`.
 3. **Setup del Database:**
    * Apri phpMyAdmin (o il tuo client MySQL preferito).
    * Crea un nuovo database.
    * Importa il file `database/my_mattiabelingheri.sql` per generare le tabelle necessarie e popolare i dati iniziali.
-4. **Configurazione DB:** 
-   * Apri il file (presumibilmente situato in `includes/config/database.php`).
-   * Aggiorna le costanti di connessione (host, username, password, nome database) affinché corrispondano al tuo ambiente locale.
-5. **Avvio:** Apri il browser e naviga verso `http://localhost/E-commerce_Belingheri_Barlascini-main/index.php`.
+4. **Configurazione DB:** i default locali sono host `localhost`, utente `root`, password vuota, database `my_mattiabelingheri`. Per un altro ambiente imposta `DB_HOST`, `DB_USER`, `DB_PASSWORD` e `DB_NAME` prima di avviare PHP.
+5. **Avvio:** Apri `index.php` dal browser. Il checkout rifiuta l'ordine se lo stock non basta, e lo stato "consegnato" si aggiorna solo con una richiesta POST.
 
 ---
 *Sviluppato per il corso di informatica/sviluppo web.*

@@ -37,7 +37,7 @@ function getCurrentUserId() {
 function requireLogin() {
     if (!isLoggedIn()) {
         $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-        header("Location: login.php");
+        header('Location: ' . (function_exists('url') ? url('auth/login.php') : 'auth/login.php'));
         exit();
     }
 }

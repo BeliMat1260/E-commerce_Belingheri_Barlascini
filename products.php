@@ -1,25 +1,25 @@
 <?php
-// Enable error reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// Include required files
 require_once __DIR__ . "/includes/config/database.php";
 require_once __DIR__ . "/includes/config/session.php";
 require_once __DIR__ . "/includes/config/functions.php";
 
-// Verify database connection
 if (!isset($conn) || !$conn) {
-    die("Error: Database connection failed");
+    die("Database connection failed");
 }
 
-// Get filters with proper validation
-$category_id = isset($_GET['category_id']) && !empty($_GET['category_id']) ? (int)$_GET['category_id'] : null;
+$category_id = null;
+if (isset($_GET['category_id']) && $_GET['category_id'] !== '') {
+    $category_id = (int)$_GET['category_id'];
+} elseif (isset($_GET['category']) && ctype_digit((string)$_GET['category'])) {
+    $category_id = (int)$_GET['category'];
+}
+if ($category_id === 0) {
+    $category_id = null;
+}
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $sort = isset($_GET['sort']) ? $_GET['sort'] : 'name_asc';
 $min_price = isset($_GET['min_price']) && is_numeric($_GET['min_price']) ? (float)$_GET['min_price'] : null;
 $max_price = isset($_GET['max_price']) && is_numeric($_GET['max_price']) ? (float)$_GET['max_price'] : null;
-$min_rating = isset($_GET['min_rating']) && is_numeric($_GET['min_rating']) ? (int)$_GET['min_rating'] : null;
 $in_stock = isset($_GET['in_stock']) ? true : false;
 
 // Build SQL query with proper joins and conditions
@@ -136,7 +136,7 @@ include __DIR__ . '/includes/components/header.php';
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="card-title mb-4">Filters</h5>
-                    <form action="/E-commerce_Belingheri_Barlascini/products.php" method="GET" id="filterForm">
+                    <form action="<?php echo BASE_URL; ?>/products.php" method="GET" id="filterForm">
                         <!-- Search -->
                         <div class="mb-4">
                             <label for="search" class="form-label fw-medium">Search</label>
@@ -221,7 +221,7 @@ include __DIR__ . '/includes/components/header.php';
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-filter me-2"></i>Apply Filters
                             </button>
-                            <a href="/E-commerce_Belingheri_Barlascini/products.php" class="btn btn-outline-secondary">
+                            <a href="<?php echo BASE_URL; ?>/products.php" class="btn btn-outline-secondary">
                                 <i class="fas fa-times me-2"></i>Clear Filters
                             </a>
                         </div>
@@ -263,10 +263,10 @@ include __DIR__ . '/includes/components/header.php';
                                         <small class="text-muted">Category: <?php echo htmlspecialchars($product['category_name']); ?></small>
                                     </p>
                                     <div class="d-grid gap-2">
-                                        <a href="/E-commerce_Belingheri_Barlascini/pages/product.php?id=<?php echo $product['id']; ?>" class="btn btn-outline-primary">View Details</a>
+                                        <a href="<?php echo BASE_URL; ?>/pages/product.php?id=<?php echo $product['id']; ?>" class="btn btn-outline-primary">View Details</a>
                                         <?php if ($product['stock_quantity'] > 0): ?>
                                             <?php if (isLoggedIn()): ?>
-                                                <form action="/E-commerce_Belingheri_Barlascini/cart/add_to_cart.php" method="POST">
+                                                <form action="<?php echo BASE_URL; ?>/cart/add_to_cart.php" method="POST">
                                                     <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
                                                     <input type="hidden" name="quantity" value="1">
                                                     <button type="submit" name="add_to_cart" class="btn btn-primary w-100">
@@ -274,7 +274,7 @@ include __DIR__ . '/includes/components/header.php';
                                                     </button>
                                                 </form>
                                             <?php else: ?>
-                                                <a href="/E-commerce_Belingheri_Barlascini/auth/login.php" class="btn btn-primary w-100">
+                                                <a href="<?php echo BASE_URL; ?>/auth/login.php" class="btn btn-primary w-100">
                                                     <i class="fas fa-sign-in-alt me-2"></i>Login to Add to Cart
                                                 </a>
                                             <?php endif; ?>
@@ -355,11 +355,11 @@ document.addEventListener('DOMContentLoaded', function() {
             this.disabled = true;
             
             // Log the request details
-            console.log('Sending request to:', `/E-commerce_Belingheri_Barlascini/wishlist/${action}_wishlist.php`);
+            console.log('Sending request to:', `<?php echo BASE_URL; ?>/wishlist/${action}_wishlist.php`);
             console.log('Product ID:', productId);
             console.log('Action:', action);
             
-            fetch(`/E-commerce_Belingheri_Barlascini/wishlist/${action}_wishlist.php`, {
+            fetch(`<?php echo BASE_URL; ?>/wishlist/${action}_wishlist.php`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -408,7 +408,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }, 3000);
                 } else {
                     if (data.message && data.message.includes('log in')) {
-                        window.location.href = '/E-commerce_Belingheri_Barlascini/auth/login.php';
+                        window.location.href = '<?php echo BASE_URL; ?>/auth/login.php';
                     } else {
                         alert(data.message || 'An error occurred');
                     }
@@ -429,7 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (wishlistButtons.length > 0) {
         const productIds = Array.from(wishlistButtons).map(button => button.dataset.productId);
         
-        fetch('/E-commerce_Belingheri_Barlascini/wishlist/check_wishlist_status.php', {
+        fetch('<?php echo BASE_URL; ?>/wishlist/check_wishlist_status.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

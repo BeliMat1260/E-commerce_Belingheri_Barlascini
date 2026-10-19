@@ -17,7 +17,7 @@ if (!$conn) {
 $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if ($product_id <= 0) {
-    header('Location: /E-commerce_Belingheri_Barlascini/products.php');
+    header('Location: ' . BASE_URL . '/products.php');
     exit();
 }
 
@@ -39,7 +39,7 @@ $result = mysqli_stmt_get_result($stmt);
 $product = mysqli_fetch_assoc($result);
 
 if (!$product) {
-    header('Location: /E-commerce_Belingheri_Barlascini/products.php');
+    header('Location: ' . BASE_URL . '/products.php');
     exit();
 }
 
@@ -63,7 +63,7 @@ include __DIR__ . '/../includes/components/header.php';
             <!-- Main Image -->
             <div class="mb-4 d-flex justify-content-center position-relative">
                 <?php if ($product['primary_image']): ?>
-                    <img src="/E-commerce_Belingheri_Barlascini/<?php echo htmlspecialchars($product['primary_image']); ?>"
+                    <img src="<?php echo BASE_URL; ?>/<?php echo htmlspecialchars($product['primary_image']); ?>"
                          class="img-fluid rounded"
                          alt="<?php echo htmlspecialchars($product['name']); ?>"
                          style="height: 400px; object-fit: contain;">
@@ -87,7 +87,7 @@ include __DIR__ . '/../includes/components/header.php';
                     <?php foreach ($images as $image): ?>
                         <div class="col-3">
                             <div class="d-flex justify-content-center">
-                                <img src="/E-commerce_Belingheri_Barlascini/<?php echo htmlspecialchars($image['image_url']); ?>"
+                                <img src="<?php echo BASE_URL; ?>/<?php echo htmlspecialchars($image['image_url']); ?>"
                                      class="img-fluid rounded cursor-pointer"
                                      alt="<?php echo htmlspecialchars($product['name']); ?> - Image <?php echo $image['image_order']; ?>"
                                      style="height: 100px; object-fit: cover;"
@@ -133,7 +133,7 @@ include __DIR__ . '/../includes/components/header.php';
 
             <?php if ($product['stock_quantity'] > 0): ?>
                 <?php if (isLoggedIn()): ?>
-                    <form action="/E-commerce_Belingheri_Barlascini/cart/add_to_cart.php" method="POST" class="mb-4">
+                    <form action="<?php echo BASE_URL; ?>/cart/add_to_cart.php" method="POST" class="mb-4">
                         <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
                         <div class="row align-items-center">
                             <div class="col-auto">
@@ -151,7 +151,7 @@ include __DIR__ . '/../includes/components/header.php';
                     </form>
                 <?php else: ?>
                     <div class="mb-4">
-                        <a href="/E-commerce_Belingheri_Barlascini/auth/login.php" class="btn btn-primary">
+                        <a href="<?php echo BASE_URL; ?>/auth/login.php" class="btn btn-primary">
                             <i class="fas fa-sign-in-alt me-2"></i>Login to Add to Cart
                         </a>
                     </div>
@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Disable button during request
             this.disabled = true;
             
-            fetch(`/E-commerce_Belingheri_Barlascini/wishlist/${action}_wishlist.php`, {
+            fetch(`<?php echo BASE_URL; ?>/wishlist/${action}_wishlist.php`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }, 3000);
                 } else {
                     if (data.message && data.message.includes('log in')) {
-                        window.location.href = '/E-commerce_Belingheri_Barlascini/auth/login.php';
+                        window.location.href = '<?php echo BASE_URL; ?>/auth/login.php';
                     } else {
                         alert(data.message || 'An error occurred');
                     }

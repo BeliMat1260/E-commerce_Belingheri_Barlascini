@@ -1,11 +1,30 @@
 <?php
-// Error reporting for debugging
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
 
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
+}
+
+if (!defined('BASE_URL')) {
+    $documentRoot = isset($_SERVER['DOCUMENT_ROOT']) ? realpath($_SERVER['DOCUMENT_ROOT']) : false;
+    $appRoot = realpath(dirname(__DIR__, 2));
+    $base = '';
+    if ($documentRoot && $appRoot) {
+        $documentRoot = str_replace('\\', '/', $documentRoot);
+        $appRoot = str_replace('\\', '/', $appRoot);
+        if (strpos($appRoot, $documentRoot) === 0) {
+            $base = substr($appRoot, strlen($documentRoot));
+        }
+    }
+    define('BASE_URL', rtrim($base, '/'));
+}
+
+function url($path = '') {
+    $path = ltrim($path, '/');
+    return BASE_URL . ($path === '' ? '/' : '/' . $path);
 }
 
 /**

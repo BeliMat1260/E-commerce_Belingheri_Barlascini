@@ -5,8 +5,8 @@ require_once __DIR__ . "/includes/config/functions.php";
 
 // Redirect if not logged in
 if (!isLoggedIn()) {
-    $_SESSION['redirect_after_login'] = '/E-commerce_Belingheri_Barlascini/checkout.php';
-    header("Location: /E-commerce_Belingheri_Barlascini/auth/login.php");
+    $_SESSION['redirect_after_login'] = '' . BASE_URL . '/checkout.php';
+    header("Location: " . BASE_URL . "/auth/login.php");
     exit();
 }
 
@@ -20,7 +20,7 @@ $cart_count = mysqli_fetch_assoc($cart_result)['count'];
 
 if ($cart_count == 0) {
     setFlashMessage('warning', 'Your cart is empty. Please add some products before checkout.');
-    header("Location: /E-commerce_Belingheri_Barlascini/cart/cart.php");
+    header("Location: " . BASE_URL . "/cart/cart.php");
     exit();
 }
 
@@ -71,40 +71,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $sql = "INSERT INTO orders (user_id, total_amount, shipping_address, billing_address, payment_method, notes) 
                     VALUES (?, ?, ?, ?, ?, ?)";
             $stmt = mysqli_prepare($conn, $sql);
+            if (!$stmt) {
+                throw new Exception('Order processing failed.');
+            }
             mysqli_stmt_bind_param($stmt, "idssss", $_SESSION['user_id'], $total, $shipping_address, $billing_address, $payment_method, $notes);
-            mysqli_stmt_execute($stmt);
+            if (!mysqli_stmt_execute($stmt)) {
+                throw new Exception('Order processing failed.');
+            }
             $order_id = mysqli_insert_id($conn);
+            if ($order_id <= 0) {
+                throw new Exception('Order processing failed.');
+            }
             
             // Insert order items and update stock
             $sql = "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)";
             $stmt = mysqli_prepare($conn, $sql);
+            if (!$stmt) {
+                throw new Exception('Order processing failed.');
+            }
             
             foreach ($cart_items as $item) {
                 $price = $item['price'];
-                mysqli_stmt_bind_param($stmt, "iiid", $order_id, $item['product_id'], $item['quantity'], $price);
-                mysqli_stmt_execute($stmt);
-                
-                // Get current stock quantity
-                $get_stock_sql = "SELECT stock_quantity FROM products WHERE id = ?";
+                $quantity = (int)$item['quantity'];
+                if ($quantity <= 0) {
+                    throw new Exception('Not enough stock for one or more products.');
+                }
+                mysqli_stmt_bind_param($stmt, "iiid", $order_id, $item['product_id'], $quantity, $price);
+                if (!mysqli_stmt_execute($stmt)) {
+                    throw new Exception('Order processing failed.');
+                }
+
+                $get_stock_sql = "SELECT stock_quantity FROM products WHERE id = ? FOR UPDATE";
                 $get_stock_stmt = mysqli_prepare($conn, $get_stock_sql);
+                if (!$get_stock_stmt) {
+                    throw new Exception('Order processing failed.');
+                }
                 mysqli_stmt_bind_param($get_stock_stmt, "i", $item['product_id']);
-                mysqli_stmt_execute($get_stock_stmt);
+                if (!mysqli_stmt_execute($get_stock_stmt)) {
+                    throw new Exception('Order processing failed.');
+                }
                 $stock_result = mysqli_stmt_get_result($get_stock_stmt);
-                $current_stock = mysqli_fetch_assoc($stock_result)['stock_quantity'];
-                
-                // Update stock
-                $new_stock = $current_stock - $item['quantity'];
+                $stock_row = mysqli_fetch_assoc($stock_result);
+                if (!$stock_row || (int)$stock_row['stock_quantity'] < $quantity) {
+                    throw new Exception('Not enough stock for one or more products.');
+                }
+
+                $new_stock = (int)$stock_row['stock_quantity'] - $quantity;
                 $update_stock_sql = "UPDATE products SET stock_quantity = ? WHERE id = ?";
                 $update_stock_stmt = mysqli_prepare($conn, $update_stock_sql);
+                if (!$update_stock_stmt) {
+                    throw new Exception('Order processing failed.');
+                }
                 mysqli_stmt_bind_param($update_stock_stmt, "ii", $new_stock, $item['product_id']);
-                mysqli_stmt_execute($update_stock_stmt);
+                if (!mysqli_stmt_execute($update_stock_stmt)) {
+                    throw new Exception('Order processing failed.');
+                }
             }
             
             // Clear cart
             $clear_cart_sql = "DELETE FROM cart WHERE user_id = ?";
             $clear_cart_stmt = mysqli_prepare($conn, $clear_cart_sql);
+            if (!$clear_cart_stmt) {
+                throw new Exception('Order processing failed.');
+            }
             mysqli_stmt_bind_param($clear_cart_stmt, "i", $_SESSION['user_id']);
-            mysqli_stmt_execute($clear_cart_stmt);
+            if (!mysqli_stmt_execute($clear_cart_stmt)) {
+                throw new Exception('Order processing failed.');
+            }
             
             // Commit transaction
             mysqli_commit($conn);
@@ -113,12 +146,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             setFlashMessage('success', 'Order placed successfully! Thank you for your purchase.');
             
             // Redirect to order confirmation
-            header("Location: /E-commerce_Belingheri_Barlascini/orders/order_confirmation.php?id=" . $order_id);
+            header("Location: " . BASE_URL . "/orders/order_confirmation.php?id=" . $order_id);
             exit();
         } catch (Exception $e) {
-            // Rollback transaction
             mysqli_rollback($conn);
-            $error = 'Order processing failed. Please try again.';
+            $error = $e->getMessage() === 'Not enough stock for one or more products.'
+                ? $e->getMessage()
+                : 'Order processing failed. Please try again.';
         }
     }
 }

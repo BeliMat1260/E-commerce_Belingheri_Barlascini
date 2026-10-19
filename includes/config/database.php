@@ -1,17 +1,18 @@
 <?php
 
-// Database configuration
-$host = "localhost";
-$username = "root";
-$password = "";
-$database = "my_mattiabelingheri";
+$host = getenv('DB_HOST') ?: 'localhost';
+$username = getenv('DB_USER') ?: 'root';
+$password = getenv('DB_PASSWORD');
+if ($password === false) {
+    $password = '';
+}
+$database = getenv('DB_NAME') ?: 'my_mattiabelingheri';
 
-// Create connection
 $conn = mysqli_connect($host, $username, $password, $database);
 
-// Check connection
 if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
+    error_log('Database connection failed: ' . mysqli_connect_error());
+    die('Database connection failed.');
 }
 
 // Set charset to utf8mb4
