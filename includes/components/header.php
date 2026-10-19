@@ -7,8 +7,9 @@ require_once __DIR__ . "/../config/session.php";
 if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 1800)) {
     session_unset();
     session_destroy();
+    session_start();
     setFlashMessage('error', 'Your session has expired. Please login again.');
-    header('Location: /E-commerce_Belingheri_Barlascini/login.php');
+    header('Location: ' . url('auth/login.php'));
     exit();
 }
 $_SESSION['last_activity'] = time();
@@ -107,7 +108,7 @@ if (isset($_SESSION['user_id'])) {
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="/E-commerce_Belingheri_Barlascini/index.php">
+            <a class="navbar-brand" href="<?php echo BASE_URL; ?>/index.php">
                 <i class="fas fa-store"></i> Premium Pool Shop
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -116,7 +117,7 @@ if (isset($_SESSION['user_id'])) {
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/E-commerce_Belingheri_Barlascini/index.php">
+                        <a class="nav-link" href="<?php echo BASE_URL; ?>/index.php">
                             <i class="fas fa-home"></i> Home
                         </a>
                     </li>
@@ -126,14 +127,14 @@ if (isset($_SESSION['user_id'])) {
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="productsDropdown">
                             <li>
-                                <a class="dropdown-item" href="/E-commerce_Belingheri_Barlascini/products.php">
+                                <a class="dropdown-item" href="<?php echo BASE_URL; ?>/products.php">
                                     <i class="fas fa-th"></i> All Products
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <?php foreach ($categories as $category): ?>
                             <li>
-                                <a class="dropdown-item" href="/E-commerce_Belingheri_Barlascini/products.php?category=<?php echo $category['id']; ?>">
+                                <a class="dropdown-item" href="<?php echo BASE_URL; ?>/products.php?category=<?php echo $category['id']; ?>">
                                     <i class="<?php echo $category['icon'] ?? 'fas fa-tag'; ?>"></i> <?php echo htmlspecialchars($category['name']); ?>
                                 </a>
                             </li>
@@ -141,19 +142,19 @@ if (isset($_SESSION['user_id'])) {
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/E-commerce_Belingheri_Barlascini/pages/contact.php">
+                        <a class="nav-link" href="<?php echo BASE_URL; ?>/pages/contact.php">
                             <i class="fas fa-envelope"></i> Contact
                         </a>
                     </li>
                 </ul>
-                <form class="d-flex me-3 search-form" action="/E-commerce_Belingheri_Barlascini/products.php" method="GET">
+                <form class="d-flex me-3 search-form" action="<?php echo BASE_URL; ?>/products.php" method="GET">
                     <input class="form-control" type="search" name="search" placeholder="Search products...">
                     <button class="btn btn-outline-light" type="submit">
                         <i class="fas fa-search"></i>
                     </button>
                 </form>
                 <div class="d-flex">
-                    <a href="<?php echo isLoggedIn() ? '/E-commerce_Belingheri_Barlascini/cart/cart.php' : '/E-commerce_Belingheri_Barlascini/auth/login.php'; ?>" class="btn btn-outline-light me-2 position-relative">
+                    <a href="<?php echo isLoggedIn() ? '' . BASE_URL . '/cart/cart.php' : '' . BASE_URL . '/auth/login.php'; ?>" class="btn btn-outline-light me-2 position-relative">
                         <i class="fas fa-shopping-cart"></i>
                         <?php if($cart_count > 0): ?>
                             <span class="badge bg-danger position-absolute top-0 start-100 translate-middle"><?php echo $cart_count; ?></span>
@@ -166,40 +167,40 @@ if (isset($_SESSION['user_id'])) {
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                 <li>
-                                    <a class="dropdown-item" href="/E-commerce_Belingheri_Barlascini/account/account.php">
+                                    <a class="dropdown-item" href="<?php echo BASE_URL; ?>/account/account.php">
                                         <i class="fas fa-user-circle"></i> Profile
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="/E-commerce_Belingheri_Barlascini/orders/orders.php">
+                                    <a class="dropdown-item" href="<?php echo BASE_URL; ?>/orders/orders.php">
                                         <i class="fas fa-shopping-bag"></i> Orders
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="/E-commerce_Belingheri_Barlascini/wishlist/wishlist.php">
+                                    <a class="dropdown-item" href="<?php echo BASE_URL; ?>/wishlist/wishlist.php">
                                         <i class="fas fa-heart"></i> Wishlist
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="/E-commerce_Belingheri_Barlascini/addresses/addresses.php">
+                                    <a class="dropdown-item" href="<?php echo BASE_URL; ?>/addresses/addresses.php">
                                         <i class="fas fa-map-marker-alt"></i> Addresses
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="/E-commerce_Belingheri_Barlascini/cart/cart.php">
+                                    <a class="dropdown-item" href="<?php echo BASE_URL; ?>/cart/cart.php">
                                         <i class="fas fa-shopping-cart"></i> Cart
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <a class="dropdown-item" href="/E-commerce_Belingheri_Barlascini/auth/logout.php">
+                                    <a class="dropdown-item" href="<?php echo BASE_URL; ?>/auth/logout.php">
                                         <i class="fas fa-sign-out-alt"></i> Logout
                                     </a>
                                 </li>
                             </ul>
                         </div>
                     <?php else: ?>
-                        <a href="/E-commerce_Belingheri_Barlascini/auth/login.php" class="btn btn-outline-light">
+                        <a href="<?php echo BASE_URL; ?>/auth/login.php" class="btn btn-outline-light">
                             <i class="fas fa-sign-in-alt"></i> Login
                         </a>
                     <?php endif; ?>

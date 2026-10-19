@@ -6,14 +6,14 @@ require_once __DIR__ . "/../includes/config/functions.php";
 // Verifica se l'utente è loggato
 if (!isLoggedIn()) {
     setFlashMessage('error', 'Please log in to cancel orders.');
-    header("Location: /E-commerce_Belingheri_Barlascini/auth/login.php");
+    header("Location: " . BASE_URL . "/auth/login.php");
     exit();
 }
 
 // Verifica se la richiesta è POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['order_id'])) {
     setFlashMessage('error', 'Invalid request.');
-    header("Location: /E-commerce_Belingheri_Barlascini/orders/orders.php");
+    header("Location: " . BASE_URL . "/orders/orders.php");
     exit();
 }
 
@@ -28,7 +28,7 @@ $result = mysqli_stmt_get_result($stmt);
 
 if (mysqli_num_rows($result) === 0) {
     setFlashMessage('error', 'Order not found.');
-    header("Location: /E-commerce_Belingheri_Barlascini/orders/orders.php");
+    header("Location: " . BASE_URL . "/orders/orders.php");
     exit();
 }
 
@@ -37,7 +37,7 @@ $order = mysqli_fetch_assoc($result);
 // Verifica se l'ordine può essere annullato
 if ($order['status'] !== 'pending') {
     setFlashMessage('error', 'Only pending orders can be cancelled.');
-    header("Location: /E-commerce_Belingheri_Barlascini/orders/orders.php");
+    header("Location: " . BASE_URL . "/orders/orders.php");
     exit();
 }
 
@@ -75,5 +75,5 @@ try {
     setFlashMessage('error', 'Failed to cancel order. Please try again.');
 }
 
-header("Location: /E-commerce_Belingheri_Barlascini/orders/orders.php");
+header("Location: " . BASE_URL . "/orders/orders.php");
 exit(); 

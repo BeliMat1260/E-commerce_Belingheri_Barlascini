@@ -5,7 +5,7 @@ require_once __DIR__ . "/../includes/config/session.php";
 // Verifica se l'utente è loggato
 if (!isLoggedIn()) {
     setFlashMessage('error', 'Please log in to view your wishlist.');
-    header("Location: /E-commerce_Belingheri_Barlascini/login.php");
+    header("Location: " . BASE_URL . "/auth/login.php");
     exit();
 }
 
@@ -41,7 +41,7 @@ include __DIR__ . '/../includes/components/header.php';
                             <div class="card h-100">
                                 <div class="position-relative">
                                     <?php if ($item['product_image']): ?>
-                                        <img src="/E-commerce_Belingheri_Barlascini/<?php echo htmlspecialchars($item['product_image']); ?>" 
+                                        <img src="<?php echo BASE_URL; ?>/<?php echo htmlspecialchars($item['product_image']); ?>" 
                                              class="card-img-top" 
                                              alt="<?php echo htmlspecialchars($item['name']); ?>"
                                              style="height: 200px; object-fit: cover;">
@@ -73,7 +73,7 @@ include __DIR__ . '/../includes/components/header.php';
                                 </div>
                                 <div class="card-footer bg-white border-top-0">
                                     <div class="d-grid gap-2">
-                                        <a href="/E-commerce_Belingheri_Barlascini/pages/product.php?id=<?php echo $item['product_id']; ?>" class="btn btn-outline-primary">View Details</a>
+                                        <a href="<?php echo BASE_URL; ?>/pages/product.php?id=<?php echo $item['product_id']; ?>" class="btn btn-outline-primary">View Details</a>
                                         <?php if ($item['stock_quantity'] > 0): ?>
                                             <form action="add_to_cart.php" method="POST" class="d-grid">
                                                 <input type="hidden" name="product_id" value="<?php echo $item['product_id']; ?>">
@@ -89,7 +89,7 @@ include __DIR__ . '/../includes/components/header.php';
                 </div>
             <?php else: ?>
                 <div class="alert alert-info">
-                    Your wishlist is empty. <a href="/E-commerce_Belingheri_Barlascini/products.php" class="alert-link">Browse products</a> to add items to your wishlist.
+                    Your wishlist is empty. <a href="<?php echo BASE_URL; ?>/products.php" class="alert-link">Browse products</a> to add items to your wishlist.
                 </div>
             <?php endif; ?>
         </div>

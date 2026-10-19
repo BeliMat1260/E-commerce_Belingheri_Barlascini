@@ -5,7 +5,7 @@ require_once __DIR__ . "/../includes/config/session.php";
 // Verifica se l'utente è loggato
 if (!isLoggedIn()) {
     setFlashMessage('error', 'Please log in to view your cart.');
-    header("Location: /E-commerce_Belingheri_Barlascini/login.php");
+    header("Location: " . BASE_URL . "/auth/login.php");
     exit();
 }
 
@@ -34,7 +34,7 @@ if (isset($_POST['remove_item'])) {
     }
     
     // Redirect per evitare il ricaricamento del form
-    header("Location: /E-commerce_Belingheri_Barlascini/cart/cart.php");
+    header("Location: " . BASE_URL . "/cart/cart.php");
     exit();
 }
 
@@ -87,7 +87,7 @@ if (isset($_POST['update_quantity'])) {
     }
     
     // Redirect per evitare il ricaricamento del form
-    header("Location: /E-commerce_Belingheri_Barlascini/cart/cart.php");
+    header("Location: " . BASE_URL . "/cart/cart.php");
     exit();
 }
 
@@ -136,7 +136,7 @@ include __DIR__ . '/../includes/components/header.php';
         <div class="col-md-9">
             <?php if (empty($cart_items)): ?>
                 <div class="alert alert-info">
-                    Your cart is empty. <a href="/E-commerce_Belingheri_Barlascini/products.php" class="alert-link">Continue shopping</a>
+                    Your cart is empty. <a href="<?php echo BASE_URL; ?>/products.php" class="alert-link">Continue shopping</a>
                 </div>
             <?php else: ?>
                 <div class="table-responsive">
@@ -156,7 +156,7 @@ include __DIR__ . '/../includes/components/header.php';
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <?php if ($item['product_image']): ?>
-                                            <img src="/E-commerce_Belingheri_Barlascini/<?php echo htmlspecialchars($item['product_image']); ?>"
+                                            <img src="<?php echo BASE_URL; ?>/<?php echo htmlspecialchars($item['product_image']); ?>"
                                                  alt="<?php echo htmlspecialchars($item['name']); ?>"
                                                  class="img-thumbnail"
                                                  style="width: 80px; height: 80px; object-fit: cover;">
@@ -201,10 +201,10 @@ include __DIR__ . '/../includes/components/header.php';
                 </div>
                 
                 <div class="d-flex justify-content-between mt-4">
-                    <a href="/E-commerce_Belingheri_Barlascini/products.php" class="btn btn-outline-primary">
+                    <a href="<?php echo BASE_URL; ?>/products.php" class="btn btn-outline-primary">
                         <i class="fas fa-arrow-left me-2"></i>Continue Shopping
                     </a>
-                    <a href="/E-commerce_Belingheri_Barlascini/checkout.php" class="btn btn-primary">
+                    <a href="<?php echo BASE_URL; ?>/checkout.php" class="btn btn-primary">
                         <i class="fas fa-shopping-cart me-2"></i>Proceed to Checkout
                     </a>
                 </div>

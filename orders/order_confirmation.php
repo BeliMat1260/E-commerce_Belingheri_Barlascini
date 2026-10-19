@@ -6,7 +6,7 @@ require_once __DIR__ . "/../includes/config/functions.php";
 // Verifica se l'utente è loggato
 if (!isLoggedIn()) {
     setFlashMessage('error', 'Please log in to view your order.');
-    header("Location: /E-commerce_Belingheri_Barlascini/auth/login.php");
+    header("Location: " . BASE_URL . "/auth/login.php");
     exit();
 }
 
@@ -27,7 +27,7 @@ $order = mysqli_fetch_assoc($order_result);
 // Redirect if order not found or doesn't belong to user
 if (!$order) {
     setFlashMessage('error', 'Order not found.');
-    header("Location: /E-commerce_Belingheri_Barlascini/orders/orders.php");
+    header("Location: " . BASE_URL . "/orders/orders.php");
     exit();
 }
 
@@ -105,7 +105,7 @@ include __DIR__ . '/../includes/components/header.php';
                                         <td>
                                             <div class="d-flex align-items-center" style="min-width: 150px;">
                                                 <?php if ($item['product_image']): ?>
-                                                    <img src="/E-commerce_Belingheri_Barlascini/<?php echo htmlspecialchars($item['product_image']); ?>"
+                                                    <img src="<?php echo BASE_URL; ?>/<?php echo htmlspecialchars($item['product_image']); ?>"
                                                          alt="<?php echo htmlspecialchars($item['name']); ?>"
                                                          class="img-thumbnail"
                                                          style="width: 50px; height: 50px; object-fit: cover; min-width: 50px;">
@@ -147,10 +147,10 @@ include __DIR__ . '/../includes/components/header.php';
 
             <!-- Action Buttons -->
             <div class="d-flex justify-content-between mt-4">
-                <a href="/E-commerce_Belingheri_Barlascini/products.php" class="btn btn-outline-primary">
+                <a href="<?php echo BASE_URL; ?>/products.php" class="btn btn-outline-primary">
                     <i class="fas fa-shopping-cart me-2"></i>Continue Shopping
                 </a>
-                <a href="/E-commerce_Belingheri_Barlascini/orders/orders.php" class="btn btn-primary">
+                <a href="<?php echo BASE_URL; ?>/orders/orders.php" class="btn btn-primary">
                     <i class="fas fa-list me-2"></i>View All Orders
                 </a>
             </div>
@@ -174,7 +174,11 @@ function updateDeliveryStatus() {
         timeLeft--;
     } else {
         clearInterval(deliveryTimer);
-        fetch(`/E-commerce_Belingheri_Barlascini/orders/update_order_status.php?order_id=<?php echo $order['id']; ?>`)
+        fetch(`<?php echo BASE_URL; ?>/orders/update_order_status.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'order_id=<?php echo (int)$order['id']; ?>'
+        })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {

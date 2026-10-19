@@ -17,5 +17,5 @@ if (isset($_COOKIE[session_name()])) {
 session_destroy();
 
 // Redirect to home page
-header('Location: /E-commerce_Belingheri_Barlascini/index.php');
+header('Location: ' . BASE_URL . '/index.php');
 exit();

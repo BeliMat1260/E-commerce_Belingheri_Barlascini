@@ -21,7 +21,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (password_verify($password, $row['password'])) {
                 $_SESSION['user_id'] = $row['id'];
                 $_SESSION['username'] = $row['username'];
-                header('Location: /E-commerce_Belingheri_Barlascini/index.php');
+                session_regenerate_id(true);
+                $_SESSION['last_regeneration'] = time();
+                $dest = $_SESSION['redirect_after_login'] ?? url('index.php');
+                unset($_SESSION['redirect_after_login']);
+                if (!is_string($dest) || preg_match('#^\s*(https?:)?//#i', $dest)) {
+                    $dest = url('index.php');
+                }
+                header('Location: ' . $dest);
                 exit();
             } else {
                 $error = 'Invalid username or password.';

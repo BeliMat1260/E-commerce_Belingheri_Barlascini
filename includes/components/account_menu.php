@@ -1,12 +1,12 @@
 <?php
 // Verifica se l'utente è loggato
 if (!isLoggedIn()) {
-    header("Location: /E-commerce_Belingheri_Barlascini/auth/login.php");
+    header("Location: " . BASE_URL . "/auth/login.php");
     exit();
 }
 
 // Definisci il percorso base del sito
-define('BASE_PATH', '/E-commerce_Belingheri_Barlascini');
+define('BASE_PATH', BASE_URL);
 
 // Ottieni il percorso corrente
 $current_path = $_SERVER['PHP_SELF'];

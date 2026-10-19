@@ -16,18 +16,18 @@
                     <h5 class="mb-3">Quick Links</h5>
                     <ul class="list-unstyled">
                         <li class="mb-2">
-                            <a href="/E-commerce_Belingheri_Barlascini/products.php?category=pool_balls" class="text-light text-decoration-none">
+                            <a href="<?php echo BASE_URL; ?>/products.php?category_id=1" class="text-light text-decoration-none">
                                 <i class="fas fa-chevron-right me-2"></i>Pool Balls
                             </a>
                         </li>
                         <li class="mb-2">
-                            <a href="/E-commerce_Belingheri_Barlascini/products.php?category=water_bottles" class="text-light text-decoration-none">
+                            <a href="<?php echo BASE_URL; ?>/products.php?category_id=2" class="text-light text-decoration-none">
                                 <i class="fas fa-chevron-right me-2"></i>Water Bottles
                             </a>
                         </li>
 
                         <li>
-                            <a href="/E-commerce_Belingheri_Barlascini/pages/contact.php" class="text-light text-decoration-none">
+                            <a href="<?php echo BASE_URL; ?>/pages/contact.php" class="text-light text-decoration-none">
                                 <i class="fas fa-chevron-right me-2"></i>Contact Us
                             </a>
                         </li>

@@ -6,13 +6,13 @@ require_once __DIR__ . "/../includes/config/functions.php";
 // Verifica se l'utente è loggato
 if (!isLoggedIn()) {
     setFlashMessage('warning', 'Please log in to view order details.');
-    header("Location: /E-commerce_Belingheri_Barlascini/auth/login.php");
+    header("Location: " . BASE_URL . "/auth/login.php");
     exit();
 }
 
 // Verifica se l'ID dell'ordine è fornito
 if (!isset($_GET['id'])) {
-    header("Location: /E-commerce_Belingheri_Barlascini/orders/orders.php");
+    header("Location: " . BASE_URL . "/orders/orders.php");
     exit();
 }
 
@@ -109,7 +109,7 @@ include __DIR__ . '/../includes/components/header.php';
                         <div class="row mb-3 pb-3 border-bottom">
                             <div class="col-md-2">
                                 <?php if ($item['product_image']): ?>
-                                    <img src="/E-commerce_Belingheri_Barlascini/<?php echo htmlspecialchars($item['product_image']); ?>"
+                                    <img src="<?php echo BASE_URL; ?>/<?php echo htmlspecialchars($item['product_image']); ?>"
                                          class="img-fluid rounded"
                                          alt="<?php echo htmlspecialchars($item['name']); ?>"
                                          style="width: 100px; height: 100px; object-fit: cover;">

@@ -5,14 +5,14 @@ require_once __DIR__ . "/../includes/config/session.php";
 // Verifica se l'utente è loggato
 if (!isLoggedIn()) {
     setFlashMessage('error', 'Please log in to update your profile.');
-    header("Location: /E-commerce_Belingheri_Barlascini/auth/login.php");
+    header("Location: " . BASE_URL . "/auth/login.php");
     exit();
 }
 
 // Verifica se la richiesta è POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     setFlashMessage('error', 'Invalid request method.');
-    header("Location: /E-commerce_Belingheri_Barlascini/account/account.php");
+    header("Location: " . BASE_URL . "/account/account.php");
     exit();
 }
 
@@ -57,7 +57,7 @@ if (!empty($phone) && !preg_match('/^\+?[0-9\s-]{6,20}$/', $phone)) {
 
 if (!empty($errors)) {
     setFlashMessage('error', implode('<br>', $errors));
-    header("Location: /E-commerce_Belingheri_Barlascini/account/account.php");
+    header("Location: " . BASE_URL . "/account/account.php");
     exit();
 }
 
@@ -84,5 +84,5 @@ if (mysqli_stmt_execute($stmt)) {
     error_log("Profile update error: " . mysqli_error($conn));
 }
 
-header("Location: /E-commerce_Belingheri_Barlascini/account/account.php");
+header("Location: " . BASE_URL . "/account/account.php");
 exit(); 

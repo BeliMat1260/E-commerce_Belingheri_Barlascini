@@ -5,14 +5,14 @@ require_once __DIR__ . "/../includes/config/session.php";
 // Verifica se l'utente è loggato
 if (!isLoggedIn()) {
     setFlashMessage('error', 'Please log in to change your password.');
-    header("Location: /E-commerce_Belingheri_Barlascini/auth/login.php");
+    header("Location: " . BASE_URL . "/auth/login.php");
     exit();
 }
 
 // Verifica se la richiesta è POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     setFlashMessage('error', 'Invalid request method.');
-    header("Location: /E-commerce_Belingheri_Barlascini/account/account.php");
+    header("Location: " . BASE_URL . "/account/account.php");
     exit();
 }
 
@@ -63,7 +63,7 @@ if ($new_password !== $confirm_password) {
 
 if (!empty($errors)) {
     setFlashMessage('error', implode('<br>', $errors));
-    header("Location: /E-commerce_Belingheri_Barlascini/account/account.php");
+    header("Location: " . BASE_URL . "/account/account.php");
     exit();
 }
 
@@ -80,5 +80,5 @@ if (mysqli_stmt_execute($stmt)) {
     error_log("Password change error: " . mysqli_error($conn));
 }
 
-header("Location: /E-commerce_Belingheri_Barlascini/account/account.php");
+header("Location: " . BASE_URL . "/account/account.php");
 exit(); 

@@ -5,14 +5,14 @@ require_once __DIR__ . "/../includes/config/session.php";
 // Verifica se l'utente è loggato
 if (!isLoggedIn()) {
     setFlashMessage('error', 'Please log in to edit addresses.');
-    header("Location: /E-commerce_Belingheri_Barlascini/auth/login.php");
+    header("Location: " . BASE_URL . "/auth/login.php");
     exit();
 }
 
 // Verifica se la richiesta è POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     setFlashMessage('error', 'Invalid request method.');
-    header("Location: /E-commerce_Belingheri_Barlascini/addresses/addresses.php");
+    header("Location: " . BASE_URL . "/addresses/addresses.php");
     exit();
 }
 
@@ -21,7 +21,7 @@ $required_fields = ['address_id', 'address_name', 'address_line1', 'city', 'stat
 foreach ($required_fields as $field) {
     if (!isset($_POST[$field]) || empty(trim($_POST[$field]))) {
         setFlashMessage('error', 'All required fields must be filled.');
-        header("Location: /E-commerce_Belingheri_Barlascini/addresses/addresses.php");
+        header("Location: " . BASE_URL . "/addresses/addresses.php");
         exit();
     }
 }
@@ -37,7 +37,7 @@ $result = mysqli_stmt_get_result($stmt);
 
 if (mysqli_num_rows($result) === 0) {
     setFlashMessage('error', 'Address not found or you do not have permission to edit it.');
-    header("Location: /E-commerce_Belingheri_Barlascini/addresses/addresses.php");
+    header("Location: " . BASE_URL . "/addresses/addresses.php");
     exit();
 }
 
@@ -116,7 +116,7 @@ if (!preg_match('/^[a-zA-Z\s\-]+$/', $country)) {
 
 if (!empty($errors)) {
     setFlashMessage('error', implode('<br>', $errors));
-    header("Location: /E-commerce_Belingheri_Barlascini/addresses/addresses.php");
+    header("Location: " . BASE_URL . "/addresses/addresses.php");
     exit();
 }
 
@@ -172,5 +172,5 @@ try {
     error_log("Address update error: " . $e->getMessage());
 }
 
-header("Location: /E-commerce_Belingheri_Barlascini/addresses/addresses.php");
+header("Location: " . BASE_URL . "/addresses/addresses.php");
 exit(); 

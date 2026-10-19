@@ -6,7 +6,7 @@ require_once __DIR__ . "/../includes/config/functions.php";
 // Verifica se l'utente è loggato
 if (!isLoggedIn()) {
     setFlashMessage('error', 'Please log in to add items to your cart.');
-    header("Location: /E-commerce_Belingheri_Barlascini/auth/login.php");
+    header("Location: " . BASE_URL . "/auth/login.php");
     exit();
 }
 
@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validazione base
     if ($product_id <= 0 || $quantity <= 0) {
         setFlashMessage('error', 'Invalid product or quantity.');
-        header("Location: /E-commerce_Belingheri_Barlascini/products.php");
+        header("Location: " . BASE_URL . "/products.php");
         exit();
     }
 
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$product || $product['stock_quantity'] < $quantity) {
         setFlashMessage('error', 'Product is not available in the requested quantity.');
-        header("Location: /E-commerce_Belingheri_Barlascini/products.php");
+        header("Location: " . BASE_URL . "/products.php");
         exit();
     }
 
@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $new_quantity = $cart_item['quantity'] + $quantity;
         if ($new_quantity > $product['stock_quantity']) {
             setFlashMessage('error', 'Not enough stock available.');
-            header("Location: /E-commerce_Belingheri_Barlascini/products.php");
+            header("Location: " . BASE_URL . "/products.php");
             exit();
         }
         
@@ -67,11 +67,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     setFlashMessage('success', 'Product added to cart successfully.');
-    header("Location: /E-commerce_Belingheri_Barlascini/cart/cart.php");
+    header("Location: " . BASE_URL . "/cart/cart.php");
     exit();
 } else {
     // Se non è una richiesta POST, reindirizza alla pagina dei prodotti
-    header("Location: /E-commerce_Belingheri_Barlascini/products.php");
+    header("Location: " . BASE_URL . "/products.php");
     exit();
 }
 ?> 
